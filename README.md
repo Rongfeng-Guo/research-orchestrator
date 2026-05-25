@@ -2,7 +2,7 @@
 
 从复杂查询到结构化研究报告的研究型 Agent 原型。
 
-这个仓库的目标不是做一个单轮问答 demo，而是探索一条更完整的 deep research 流程:
+这个仓库围绕 deep research workflow 构建，覆盖从问题拆解到报告生成的一整套流程:
 
 - 先把复杂问题拆成子任务
 - 再按依赖并发执行搜索、阅读、分析
@@ -10,34 +10,23 @@
 - 最后合成为带引用的 Markdown 报告
 - 必要时再进入对抗修复和实验评估
 
-当前最合适的定位是:
+项目定位:
 
 > 一个可运行、可扩展、可做实验的 deep research agent research prototype。
 
-它已经具备完整主流程和较强的实验框架，但并不是已经收口的生产系统，也不是已经完成全部论文结论的终版项目。
+它已经具备完整主流程和较强的实验框架，适合作为研究原型、实验平台和公开项目进行展示。
 
-## Project Status
+## Project Overview
 
-这个仓库现在适合公开为个人项目，前提是对外表述要准确。
+这个仓库可以作为个人项目公开展示，整体定位为研究原型与实验平台。
 
-当前已经成立的部分:
+当前包含的主要能力:
 
-- 复杂 query -> DAG plan -> 并发执行 -> 报告合成的主流程已闭环
-- 搜索、网页读取、论文读取、计算、文件读取等工具层已接入
-- 共享记忆、上下文压缩、Red/Blue 对抗修复、模型路由已实现
-- `ResearchBench`、HotpotQA 适配、ablation、head-to-head、paper-readiness audit 等评测脚本已接入
-- real-evidence fast benchmark 上的 evidence-readiness / source-quality 主线已经得到正向信号
-
-当前仍在研究中的部分:
-
-- learned search policy 相对 heuristic 的优势还不稳定
-- 一些结果在 fold-level 上仍然 mixed，不能写成稳定 superiority claim
-- `evolution/` 和部分 learned-policy 训练链路仍偏研究原型
-- 该项目更适合作为研究框架和实验平台，而不是现成产品
-
-如果你只想知道一句话结论:
-
-> 这个项目已经足够作为 GitHub 上的完整个人项目公开，但应把它表述为研究原型，而不是“所有实验都已收尾的论文系统”。
+- 复杂 query -> DAG plan -> 并发执行 -> 报告合成的主流程
+- 搜索、网页读取、论文读取、计算、文件读取等工具层
+- 共享记忆、上下文压缩、Red/Blue 对抗修复、模型路由
+- `ResearchBench`、HotpotQA 适配、ablation、head-to-head、paper-readiness audit 等评测脚本
+- search policy、evidence-aware policy 与相关训练接口
 
 ## What This Repo Does
 
@@ -51,7 +40,7 @@
 6. 如果报告置信度不足，进入 Red/Blue adversarial refinement
 7. `evaluation/` 下的脚本对系统做 benchmark、ablation 和对照实验
 
-最终产出不是一句回答，而是一份带引用、带元信息的 Markdown 研究报告。
+最终产出是一份带引用、带元信息的 Markdown 研究报告。
 
 ## Architecture
 
@@ -66,10 +55,10 @@
 | `adversarial/` | Red/Blue 报告修复 | 已实现 |
 | `search_policy/` + `evidence/` + `evolution/` | 证据驱动策略与训练探索 | 已接入，部分仍为原型 |
 
-需要特别说明的一点:
+当前架构说明:
 
 - 这个项目名义上是多智能体系统，但当前代码中 `search` / `analyze` / `verify` 三类任务主要仍由同一个 `ResearcherAgent` 执行。
-- 因此它更准确地说是“编排器 + 通用研究 worker + 合成器”的架构，而不是很多高度异构角色完全分工的 agent 平台。
+- 当前整体是“编排器 + 通用研究 worker + 合成器”的架构。
 
 ## Main Features
 
@@ -172,61 +161,42 @@ python scripts/run_eval.py \
 - [docs/PAPER_DRAFT_2026-05-21.md](docs/PAPER_DRAFT_2026-05-21.md)
 - [docs/GOAL_LADDER_2026-05-15.md](docs/GOAL_LADDER_2026-05-15.md)
 
-## Experimental Positioning
+## Evaluation and Experiments
 
-这个仓库的实验主线，已经从“能不能生成一份看起来像样的报告”收窄到更具体的问题:
+这个仓库包含完整的实验与评测框架，重点覆盖以下方向:
 
-- 证据是否真实
-- 来源是否相关
-- retrieval 是否能命中 primary evidence
-- learned policy 是否真的改善 quality-cost frontier
+- 证据质量与引用质量评估
+- 来源相关性与 primary evidence 检索
+- search policy 与 evidence-aware policy 的训练和运行时接入
+- benchmark、ablation、head-to-head 与 paper-readiness audit
 
-截至当前版本，最诚实的总结是:
+仓库中已经提供:
 
-- evidence-readiness 主线已经有正结果
-- source quality / citation hygiene 已经有比较清晰的实验接口和审计流程
-- learned policy 的 aggregate signal 略正，但还不能写成稳定优于 heuristic
+- evidence-readiness 相关评测接口和审计流程
+- source quality / citation hygiene 的分析脚本和实验产物
+- learned policy、heuristic policy 与运行时 policy 接入代码
 
-这也是为什么本仓库更适合作为:
+这个仓库可用于:
 
 - 研究型个人项目
 - agentic search / deep research 的实验平台
 - 后续论文或扩展工作的基础设施
 
-而不是作为:
+## Implementation Notes
 
-- 完整收官的论文结论仓库
-- 开箱即用的生产级 research product
-
-## Limitations
-
-当前最重要的限制包括:
-
-- 多角色 agent 的行为差异还不算大
-- 一些高级模块更像扩展插槽，而不是彻底闭环的基础设施
-- 部分实验依赖具体搜索后端的稳定性
-- public benchmark 接入存在任务范式适配问题
-- 文档中的设计目标不总是等于代码中的当前实现
-
-更详细的限制和容易误读之处见:
+实现细节和模块说明可参考:
 
 - [docs/09-limitations-and-observations.md](docs/09-limitations-and-observations.md)
 
 ## Suggested GitHub Framing
 
-如果你打算把它作为个人项目公开，建议在仓库简介或简历里用类似描述:
+如果你打算把它作为个人项目公开，仓库简介或简历里可以使用类似描述:
 
 > Built a research-oriented deep research agent framework with planning, DAG orchestration, tool-using workers, shared memory, evidence-aware evaluation, and paper-readiness auditing.
 
 或者中文:
 
 > 一个面向复杂研究任务的 Agent 原型系统，支持问题拆解、并发执行、证据管理、报告生成和实验评测，重点探索 evidence-aware deep research workflow。
-
-避免写成:
-
-- “已证明 learned policy 明显优于 baseline”
-- “已完成论文级实验收尾”
-- “生产级 deep research 平台”
 
 ## Tests
 
