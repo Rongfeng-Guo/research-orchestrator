@@ -14,11 +14,11 @@
 
 > 一个可运行、可扩展、可做实验的 deep research agent research prototype。
 
-它已经具备完整主流程和较强的实验框架，适合作为研究原型、实验平台和公开项目进行展示。
+它已经具备完整主流程和较强的实验框架，适合作为研究原型与实验平台。
 
 ## Project Overview
 
-这个仓库可以作为个人项目公开展示，整体定位为研究原型与实验平台。
+这个仓库整体定位为研究原型与实验平台。
 
 当前包含的主要能力:
 
@@ -178,7 +178,7 @@ python scripts/run_eval.py \
 
 这个仓库可用于:
 
-- 研究型个人项目
+- 研究项目
 - agentic search / deep research 的实验平台
 - 后续论文或扩展工作的基础设施
 
@@ -187,16 +187,6 @@ python scripts/run_eval.py \
 实现细节和模块说明可参考:
 
 - [docs/09-limitations-and-observations.md](docs/09-limitations-and-observations.md)
-
-## Suggested GitHub Framing
-
-如果你打算把它作为个人项目公开，仓库简介或简历里可以使用类似描述:
-
-> Built a research-oriented deep research agent framework with planning, DAG orchestration, tool-using workers, shared memory, evidence-aware evaluation, and paper-readiness auditing.
-
-或者中文:
-
-> 一个面向复杂研究任务的 Agent 原型系统，支持问题拆解、并发执行、证据管理、报告生成和实验评测，重点探索 evidence-aware deep research workflow。
 
 ## Tests
 
