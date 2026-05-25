@@ -1,6 +1,6 @@
 # DeepResearch Agent
 
-从复杂查询到结构化研究报告的研究型 Agent 原型。
+从复杂查询到结构化研究报告的系统实现。
 
 这个仓库围绕 deep research workflow 构建，覆盖从问题拆解到报告生成的一整套流程:
 
@@ -10,17 +10,9 @@
 - 最后合成为带引用的 Markdown 报告
 - 必要时再进入对抗修复和实验评估
 
-项目定位:
+## Overview
 
-> 一个可运行、可扩展、可做实验的 deep research agent research prototype。
-
-它已经具备完整主流程和较强的实验框架，适合作为研究原型与实验平台。
-
-## Project Overview
-
-这个仓库整体定位为研究原型与实验平台。
-
-当前包含的主要能力:
+该仓库包含以下能力:
 
 - 复杂 query -> DAG plan -> 并发执行 -> 报告合成的主流程
 - 搜索、网页读取、论文读取、计算、文件读取等工具层
@@ -28,16 +20,16 @@
 - `ResearchBench`、HotpotQA 适配、ablation、head-to-head、paper-readiness audit 等评测脚本
 - search policy、evidence-aware policy 与相关训练接口
 
-## What This Repo Does
+## Workflow
 
-主线流程如下:
+主流程如下:
 
 1. `Planner` 把用户问题拆成带依赖关系的 DAG 子任务图
 2. `Orchestrator` 按拓扑层级并发调度子任务
 3. `ResearcherAgent` 调用搜索、浏览器、ArXiv、计算器等工具完成子任务
 4. `SharedMemoryStore` 保存中间证据、上下文和过程信号
 5. `SummarizerAgent` 把子任务结果合成为研究报告
-6. 如果报告置信度不足，进入 Red/Blue adversarial refinement
+6. 在需要时进入 Red/Blue adversarial refinement
 7. `evaluation/` 下的脚本对系统做 benchmark、ablation 和对照实验
 
 最终产出是一份带引用、带元信息的 Markdown 研究报告。
@@ -55,10 +47,8 @@
 | `adversarial/` | Red/Blue 报告修复 | 已实现 |
 | `search_policy/` + `evidence/` + `evolution/` | 证据驱动策略与训练探索 | 已接入，部分仍为原型 |
 
-当前架构说明:
-
-- 这个项目名义上是多智能体系统，但当前代码中 `search` / `analyze` / `verify` 三类任务主要仍由同一个 `ResearcherAgent` 执行。
-- 当前整体是“编排器 + 通用研究 worker + 合成器”的架构。
+- `search` / `analyze` / `verify` 三类任务当前由同一个 `ResearcherAgent` 执行。
+- 整体执行结构由编排器、研究 worker 和合成器组成。
 
 ## Main Features
 
@@ -98,7 +88,7 @@ deepresearch-agent-main/
 
 ### 1. Environment
 
-建议环境:
+环境要求:
 
 - Python `3.11`
 - 一个可用的 LLM API key
@@ -112,15 +102,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-环境变量配置可参考:
+环境变量配置:
 
 - `.env.template`
 - `.env.tools.template`
 - [docs/07-configuration-and-environment.md](docs/07-configuration-and-environment.md)
 
-注意:
-
-- 如果真实搜索后端缺失对应 key，运行时会在部分路径上自动回退到 mock 模式，以保证主流程可 smoke run。
+- 如果真实搜索后端缺失对应 key，运行时会在部分路径上自动回退到 mock 模式。
 
 ### 2. Run a Single Research Task
 
@@ -147,7 +135,7 @@ python scripts/run_eval.py \
 
 ## Recommended Reading Order
 
-如果你是第一次看这个仓库，建议按下面顺序读:
+推荐阅读:
 
 1. [docs/01-overview.md](docs/01-overview.md)
 2. [docs/02-runtime-flow.md](docs/02-runtime-flow.md)
@@ -155,7 +143,7 @@ python scripts/run_eval.py \
 4. [docs/06-evaluation-and-experiments.md](docs/06-evaluation-and-experiments.md)
 5. [docs/09-limitations-and-observations.md](docs/09-limitations-and-observations.md)
 
-如果你想了解当前实验到底做到哪里了，重点看:
+实验记录:
 
 - [docs/PROGRESS_2026-05-23.md](docs/PROGRESS_2026-05-23.md)
 - [docs/PAPER_DRAFT_2026-05-21.md](docs/PAPER_DRAFT_2026-05-21.md)
@@ -163,28 +151,22 @@ python scripts/run_eval.py \
 
 ## Evaluation and Experiments
 
-这个仓库包含完整的实验与评测框架，重点覆盖以下方向:
+该仓库包含完整的实验与评测框架，覆盖以下方向:
 
 - 证据质量与引用质量评估
 - 来源相关性与 primary evidence 检索
 - search policy 与 evidence-aware policy 的训练和运行时接入
 - benchmark、ablation、head-to-head 与 paper-readiness audit
 
-仓库中已经提供:
+已包含:
 
 - evidence-readiness 相关评测接口和审计流程
 - source quality / citation hygiene 的分析脚本和实验产物
 - learned policy、heuristic policy 与运行时 policy 接入代码
 
-这个仓库可用于:
-
-- 研究项目
-- agentic search / deep research 的实验平台
-- 后续论文或扩展工作的基础设施
-
 ## Implementation Notes
 
-实现细节和模块说明可参考:
+实现细节:
 
 - [docs/09-limitations-and-observations.md](docs/09-limitations-and-observations.md)
 

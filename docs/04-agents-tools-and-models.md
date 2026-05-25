@@ -19,12 +19,6 @@
 
 以及统一的 `run(task, context)` 接口。
 
-它的价值在于：
-
-- 统一生命周期管理
-- 方便 `AgentPool` 做对象复用
-- 方便后续替换不同 agent 实现
-
 ## 3. `ResearcherAgent`：真正干活的 worker
 
 ### 3.1 它负责什么
@@ -48,7 +42,7 @@
 5. 把工具结果回填到消息历史。
 6. 继续让模型决定是否继续调用工具或输出总结。
 
-### 3.3 它有哪些控制策略
+### 3.3 控制策略
 
 当前实现里有很多约束：
 
@@ -58,20 +52,15 @@
 - 如果结果全空或已经搜了两轮，会强制要求总结。
 - 如果上下文里有 `evidence_snapshot_md` 或 `research_policy`，这些内容也会进入任务 prompt，用来提示当前证据缺口和建议动作。
 
-### 3.4 最重要的现实限制
+### 3.4 工具调用限制
 
 Prompt 明确写了：
 
 - 一个子任务最多只能调用 2 次工具。
 
-这意味着：
-
-- 它不是“无限探索型”代理。
-- 它更像“有限搜索预算下的研究助理”。
-
 ## 4. `SummarizerAgent`：最终报告合成器
 
-它和 `ResearcherAgent` 最大的区别是：
+它与 `ResearcherAgent` 的主要区别是：
 
 - 不做多轮工具调用
 - 不再搜信息
@@ -106,17 +95,15 @@ Prompt 明确写了：
 - 补充搜索后修正
 - 删除高风险内容
 
-它们真正组成一个质量后处理回路，而不是研究主执行体。
+它们负责报告质量后处理。
 
-## 6. `AgentPool`：对象池，而不是智能调度器
+## 6. `AgentPool`
 
 `AgentPool` 的职责很朴素：
 
 - 延迟创建 agent
 - 复用空闲 agent
 - 在 agent 被污染或截断后丢弃
-
-它不做复杂负载均衡，而只是一个生命周期容器。
 
 ## 7. 工具层概览
 
@@ -148,9 +135,8 @@ Prompt 明确写了：
 
 ### `arxiv_reader`
 
-- 不只支持 ArXiv。
-- 还支持 Semantic Scholar 和 OpenAlex。
-- 这让它在中文网络环境下更实用。
+- 支持 ArXiv
+- 支持 Semantic Scholar 和 OpenAlex
 
 ### `file_reader`
 
@@ -166,9 +152,9 @@ Prompt 明确写了：
 
 ### `code_sandbox`
 
-- 当前是受限实现，不是完整 Docker 沙箱
+- 受限执行实现
 - 默认不允许 `import`
-- 更像“可控表达式执行器”
+- 适用于简单程序化计算
 
 ### `notepad`
 
@@ -191,19 +177,9 @@ Prompt 明确写了：
 - 做 embedding 检索
 - 做去重和矛盾检测
 
-你可以把它们理解成：
-
-- `notepad` 是草稿纸
-- `memory_store` 是知识库
-- `evidence_snapshot` 是从知识库提炼出来的“当前研究决策面板”
-
 ## 10. 模型层：为什么叫 `VLLMPolicy`
 
-虽然类名叫 `VLLMPolicy`，但它不是只能接 vLLM。
-
-实际上它是一个：
-
-- OpenAI 兼容 API 的统一封装器
+`VLLMPolicy` 是 OpenAI 兼容 API 的统一封装器。
 
 它支持：
 
@@ -227,7 +203,7 @@ Prompt 明确写了：
 - solver 用强推理模型
 - red/blue/judge 用更稳定或更便宜的模型
 
-## 12. `VLLMPolicy` 的实际职责
+## 12. `VLLMPolicy` 的职责
 
 它不仅仅是一个 API client，还做了几件关键事情：
 
@@ -238,11 +214,7 @@ Prompt 明确写了：
 - 兼容工具调用的回退解析
 - 把异常分成“上下文超限”和“其他错误”
 
-换句话说：
-
-> 这个类承担了不少“与模型接口打交道的脏活”
-
-## 13. 当前实现的几个事实
+## 13. 补充说明
 
 - 研究 worker 主要是一个通用 `ResearcherAgent`。
 - 工具调用能力比角色分工更重要。

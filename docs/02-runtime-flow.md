@@ -1,8 +1,6 @@
 # 单次 Query 的运行流程
 
-这一篇只讲一件事：
-
-> 用户给出一个 query 后，系统在代码里到底做了什么。
+本文档说明单次 query 的运行流程，以及主流程在代码中的调用路径。
 
 ## 1. 入口有哪几种
 
@@ -15,7 +13,7 @@
 - `scripts/run_benchmark.py`
 - `scripts/run_all_experiments.py`
 
-如果你只关心“单次研究任务”，主入口就是 `scripts/run_single.py`。
+单次研究任务的主入口是 `scripts/run_single.py`。
 
 ## 2. 单次运行的最短调用链
 
@@ -47,7 +45,7 @@ run_single.py
 5. 调用 `run_research()` 执行完整研究流程。
 6. 把最终报告保存为 Markdown 文件。
 
-这层本身不负责研究逻辑，它只是把系统“启动起来”。
+这一层主要负责启动系统和组织运行参数。
 
 ## 4. 模块初始化阶段做了什么
 
@@ -64,11 +62,7 @@ run_single.py
 7. `AgentPool`
 8. `Orchestrator`
 
-这一步非常重要，因为很多“多模块系统”的理解，都要先从这里开始：
-
-- 哪些模块是真实例化的
-- 哪些模块只是占位
-- 不同模块各自绑定了哪个模型后端
+模块初始化阶段负责实例化主流程所需的核心组件，并完成后端绑定。
 
 ## 5. 运行阶段的核心：`run_research()`
 
@@ -79,7 +73,7 @@ run_single.py
 3. 在研究完成后关闭 `WebSearchTool` 的共享 session
 4. 把 `ResearchReport` 重新格式化为用户可读的 Markdown
 
-换句话说，真正的“研究”是在 `Orchestrator` 内部完成的。
+主流程执行逻辑位于 `Orchestrator` 内部。
 
 ## 6. Orchestrator 的状态机
 
@@ -102,7 +96,7 @@ REPLANNING
 FAILED
 ```
 
-这不是装饰性的设计，而是实际控制流程的骨架。
+状态机负责控制主流程中的阶段切换。
 
 ## 7. 一次 query 的详细时序
 
@@ -146,7 +140,7 @@ sequenceDiagram
 3. 要求 `Planner` 生成 JSON 格式的 `sub_tasks`
 4. 再将这些任务转成 DAG
 
-这里的关键不是普通文本规划，而是“必须输出可解析的 JSON + 无环依赖图”。
+规划阶段要求输出可解析的 JSON 结构和无环依赖图。
 
 如果规划失败，系统通常会直接进入 `FAILED`，因为最初计划如果都无法生成，后续调度就无从谈起。
 
@@ -159,12 +153,7 @@ sequenceDiagram
 3. 用 `Semaphore` 控制最大并发数
 4. 每个子任务再单独加 `timeout`
 
-这一步的核心是：
-
-- 不是所有任务都并发
-- 只有没有依赖冲突的任务才会同层执行
-
-也就是说，这不是“把所有子任务一股脑全开”，而是“按 DAG 层级并发”。
+并发执行以 DAG 层级为单位，同层中不存在依赖冲突的任务可以并发运行。
 
 ## 10. 单个子任务如何执行
 
@@ -177,10 +166,7 @@ sequenceDiagram
 5. 返回 `AgentResult`
 6. `AgentPool.release_agent()` 回收 agent
 
-重要的是：
-
-- `AgentPool` 的存在是为了复用 agent 实例
-- 真正研究逻辑发生在 `ResearcherAgent.run()`
+`AgentPool` 负责复用 agent 实例，子任务执行逻辑位于 `ResearcherAgent.run()`。
 
 ## 11. Collecting 阶段
 
@@ -206,9 +192,7 @@ sequenceDiagram
 4. 生成新的 DAG
 5. 重新进入 `DISPATCHING`
 
-这部分体现了系统的一个核心思想：
-
-> 计划不是一次性定死的，而是可以在执行后修正。
+重规划阶段用于在执行后更新任务图并重新调度。
 
 ## 13. Synthesizing 阶段
 
@@ -222,13 +206,11 @@ sequenceDiagram
 4. 解析出来源列表
 5. 计算整体置信度
 
-这里的整体置信度不是纯粹相信模型自评，而是：
+整体置信度由模型自评和子任务执行成功率共同计算:
 
 ```text
 整体置信度 = LLM 自评分 × sqrt(子任务成功率)
 ```
-
-所以它混合了主观自评和客观执行成功率。
 
 ## 14. Adversarial 阶段
 
@@ -239,7 +221,7 @@ sequenceDiagram
 - 如果 `confidence >= 0.8`，直接跳过对抗修复
 - 否则进入 `AdversarialLoop`
 
-所以对抗环节不是“总会发生”的，而是“有条件发生”。
+对抗环节在满足条件时执行。
 
 ## 15. 最终格式化与保存
 
@@ -254,7 +236,7 @@ sequenceDiagram
 
 ## 16. REPL 模式和单次运行的区别
 
-`scripts/run_repl.py` 和 `run_single.py` 最大的区别不在于“交互式”，而在于：
+`scripts/run_repl.py` 与 `run_single.py` 的主要区别在于:
 
 - REPL 会复用同一个 `modules`
 - 共享同一个 `session_id`

@@ -2,7 +2,7 @@
 
 ## 1. 总体架构
 
-这个项目可以按职责拆成 7 层：
+这个项目可以按职责拆成 7 层:
 
 1. 入口层
 2. 运行编排层
@@ -49,7 +49,7 @@ flowchart TD
 
 ## 4. 核心数据结构
 
-这些结构定义在 `src/orchestrator/schemas.py`，是全系统共享的公共语言。
+这些结构定义在 `src/orchestrator/schemas.py`，用于在系统中传递统一的数据表示。
 
 ### 4.1 `SubTask`
 
@@ -120,7 +120,7 @@ flowchart TD
 - 建 adversarial loop
 - 建 orchestrator
 
-它是依赖注入层，而不是业务逻辑中心。
+它主要负责依赖装配和模块初始化。
 
 ### `Orchestrator`
 
@@ -164,7 +164,7 @@ flowchart TD
 - `evidence_strength`
 - `uncertainty`
 
-## 6. 一个容易误解的点：任务类型和 Agent 类型不是一一对应
+## 6. 任务类型与 Agent 类型
 
 从 schema 看，任务类型有：
 
@@ -172,16 +172,9 @@ flowchart TD
 - `analyze`
 - `verify`
 
-很多人会以为这三种任务会被分配给三类不同 Agent。
+当前实现里，`AgentPool._create_agent()` 对这三类任务都返回 `ResearcherAgent`。
 
-但当前实现里，`AgentPool._create_agent()` 对这三类任务都返回 `ResearcherAgent`。
-
-所以：
-
-- 任务类型在当前系统里更多是“语义标签”和“调度标签”
-- 不是严格意义上的“不同智能体实现”
-
-真正明显不同的 Agent 主要有：
+当前主要的 Agent 类型包括:
 
 - `ResearcherAgent`
 - `SummarizerAgent`
@@ -190,7 +183,7 @@ flowchart TD
 
 ## 7. 并发模型
 
-这个项目的并发不靠多进程，而主要靠：
+这个项目的并发主要基于:
 
 - `asyncio`
 - `asyncio.gather`
@@ -211,11 +204,9 @@ flowchart TD
 - 最终合成
 - 对抗环中的 Red/Blue 轮次
 
-## 8. 数据流而不是调用树，才是理解它的关键
+## 8. 数据流
 
-从“调用函数”的角度看，项目有点分散。
-
-但从“数据如何流动”的角度看，就很清楚：
+主流程中的数据流如下:
 
 ```text
 query
@@ -230,7 +221,7 @@ query
 
 ## 9. 共享上下文是怎么传的
 
-系统没有做一个超级复杂的黑板系统，而是采用了更实用的模式：
+系统通过以下方式传递共享上下文:
 
 - Orchestrator 维护运行时 `_memory_store` 字典
 - 成功结果也进入 `SharedMemoryStore`
@@ -238,20 +229,20 @@ query
 - 规划时还会尝试从长期记忆里取与当前 query 相关的上下文
 - 收集阶段还会生成 `evidence_snapshot` 和 `research_policy`，注入到后续 worker 和 summarizer 的上下文里
 
-这意味着上下文分两类：
+上下文主要分为两类:
 
 - 运行时上下文
 - 持久化语义记忆
 
-## 10. 架构上的强点
+## 10. 架构特征
 
 - 运行主线清晰
 - 模块边界明确
 - 配置和模型后端分离
 - 评测链路与主流程共用同一运行内核
 
-## 11. 架构上的折中
+## 11. 扩展点
 
 - 真正的多角色差异不算大
 - 压缩和记忆对主流程的介入还比较有限
-- 一些高级模块更像“可扩展插槽”而不是完全闭环的基础设施
+- 一些高级模块提供了进一步扩展的接口
