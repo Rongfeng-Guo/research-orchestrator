@@ -1,8 +1,8 @@
-# Paper Draft v0
+# Paper Draft
 
 日期：2026-05-21
 
-工作标题：
+标题：
 
 **Toward Paper-Grade Deep Research Agents: Evidence Integrity Gates, Source Relevance Audits, and Official-Source-Aware Retrieval**
 

@@ -1,16 +1,14 @@
 # 配置系统与环境变量
 
-这个项目的配置分成两层：
+项目配置分成两层：
 
 - `configs/default.yaml`：模块策略和运行参数
 - `.env` / `.env.local`：连接信息和密钥
 
-## 1. 为什么分两层
+## 1. 配置分层
 
-这是一个很合理的设计：
-
-- YAML 管“怎么跑”
-- `.env` 管“连到哪儿、用什么 key”
+- YAML 管理运行参数和模块策略
+- `.env` 管理连接信息和密钥
 
 ## 2. 配置加载顺序
 
@@ -41,7 +39,7 @@
 
 ### `model`
 
-最重要的配置块之一，包含：
+包含：
 
 - 默认后端
 - 后端采样参数
@@ -101,10 +99,7 @@
 - GRPO 轮数
 - 学习率
 
-注意：
-
-- 默认是关闭的
-- 当前代码也把它当作原型接口
+- 默认关闭
 
 ### `summarizer`
 
@@ -121,11 +116,9 @@
 - `arxiv_reader.enabled`
 - `code_sandbox.enabled`
 
-## 4. 模型后端配置是本项目的重点设计
+## 4. 模型后端配置
 
-`model` 部分最关键的思想不是“选一个模型”，而是：
-
-> “不同模块可以用不同后端和不同采样参数”
+`model` 配置块支持不同模块使用不同后端和不同采样参数。
 
 ## 5. `backend_mapping` 是怎么用的
 
@@ -165,7 +158,7 @@
 - `CODE_SANDBOX_TIMEOUT`
 - `FILE_READER_ALLOWED_BASE_DIR`
 
-## 7. 工具相关配置的实际影响
+## 7. 工具相关配置
 
 ### `web_search.mock_mode`
 
@@ -185,33 +178,27 @@
 
 决定论文工具走哪个学术数据源。
 
-## 8. 日常使用时最应该改哪里
+## 8. 常见配置项
 
-### 想切模型
-
-优先改：
+### 模型切换
 
 - `.env.local`
 - `configs/default.yaml` 的 `backend_mapping`
 
-### 想调流程速度或成本
-
-优先改：
+### 运行速度与成本
 
 - `max_concurrent`
 - `global_timeout_seconds`
 - 各模块 `max_tokens`
 - adversarial 开关与轮数
 
-### 想做纯流程调试
-
-优先改：
+### 流程调试
 
 - `tools.web_search.mock_mode = true`
 
-## 9. 当前配置系统的注意点
+## 9. 配置说明
 
 - 一些说明文字与当前代码可能存在轻微偏差，应以代码为准。
-- `evolution` 虽然可配置，但并不等于训练闭环已经完整可用。
+- `evolution` 提供配置接口和训练相关参数。
 - 工具 `enabled` 字段在所有地方不一定都被严格消费，实际行为还要看 `initialize_modules()` 是否引用该配置。
-- 仓库里还存在一个偏 smoke-run 的 `configs/aliyun_smoke.yaml`，它更适合低成本验证链路，不代表默认推荐生产配置。
+- `configs/aliyun_smoke.yaml` 提供低成本链路验证配置。

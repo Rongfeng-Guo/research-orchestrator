@@ -1,8 +1,8 @@
-# DeepResearch Agent 改进总结
+# DeepResearch Agent 版本改动记录
 
 日期：2026-05-12
 
-这份文档总结本轮已经完成的所有关键改进，目标不是写成 changelog，而是把“这份仓库现在比原来强在哪里、已经补了哪些研究基础设施、后面还差什么”一次说清楚。
+这份文档整理本轮改动内容，用于记录功能补充、运行验证和相关实验接口的更新情况。
 
 ---
 
@@ -607,4 +607,3 @@ python scripts/run_single.py --query "Transformer architecture" --config configs
 如果只选一个下一步，我建议：
 
 > **先实现 `src/search_policy/train_policy.py`，把当前 search cache + reward 真正变成一个可训练 baseline。**
-

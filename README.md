@@ -2,7 +2,7 @@
 
 从复杂查询到结构化研究报告的系统实现。
 
-这个仓库围绕 deep research workflow 构建，覆盖从问题拆解到报告生成的一整套流程:
+这个仓库围绕 deep research workflow 构建，覆盖从问题拆解到报告生成的完整流程:
 
 - 先把复杂问题拆成子任务
 - 再按依赖并发执行搜索、阅读、分析
@@ -36,7 +36,7 @@
 
 ## Architecture
 
-核心模块可以概括为 6 个层次:
+核心模块:
 
 | Module | Responsibility | Current status |
 | --- | --- | --- |
@@ -102,7 +102,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-环境变量配置:
+环境变量模板:
 
 - `.env.template`
 - `.env.tools.template`
@@ -143,7 +143,7 @@ python scripts/run_eval.py \
 4. [docs/06-evaluation-and-experiments.md](docs/06-evaluation-and-experiments.md)
 5. [docs/09-limitations-and-observations.md](docs/09-limitations-and-observations.md)
 
-实验记录:
+补充文档:
 
 - [docs/PROGRESS_2026-05-23.md](docs/PROGRESS_2026-05-23.md)
 - [docs/PAPER_DRAFT_2026-05-21.md](docs/PAPER_DRAFT_2026-05-21.md)
@@ -151,14 +151,14 @@ python scripts/run_eval.py \
 
 ## Evaluation and Experiments
 
-该仓库包含完整的实验与评测框架，覆盖以下方向:
+该仓库包含实验与评测框架，覆盖以下方向:
 
 - 证据质量与引用质量评估
 - 来源相关性与 primary evidence 检索
 - search policy 与 evidence-aware policy 的训练和运行时接入
 - benchmark、ablation、head-to-head 与 paper-readiness audit
 
-已包含:
+相关内容:
 
 - evidence-readiness 相关评测接口和审计流程
 - source quality / citation hygiene 的分析脚本和实验产物

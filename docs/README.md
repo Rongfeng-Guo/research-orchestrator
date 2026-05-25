@@ -35,18 +35,24 @@
 | 文件 | 说明 |
 | --- | --- |
 | [evidence_aware_policy.md](./evidence_aware_policy.md) | `src/evidence/` 相关设计与运行时信号 |
-| [CODEX_RUNBOOK.md](./CODEX_RUNBOOK.md) | 本机运行记录与操作说明 |
-| [RESEARCH_POSITIONING_2026-05-14.md](./RESEARCH_POSITIONING_2026-05-14.md) | 研究定位与实验设计说明 |
 | [EXPERIMENT_PROTOCOL_2026-05-14.md](./EXPERIMENT_PROTOCOL_2026-05-14.md) | 实验协议与执行要求 |
+| [RESEARCH_POSITIONING_2026-05-14.md](./RESEARCH_POSITIONING_2026-05-14.md) | 研究定位与实验设计说明 |
 | [GOAL_LADDER_2026-05-15.md](./GOAL_LADDER_2026-05-15.md) | 项目目标分层说明 |
-| [PAPER_DRAFT_2026-05-21.md](./PAPER_DRAFT_2026-05-21.md) | 论文草稿与实验叙事整理 |
-| [PROGRESS_2026-05-14.md](./PROGRESS_2026-05-14.md) | 进度记录 |
-| [PROGRESS_2026-05-15.md](./PROGRESS_2026-05-15.md) | 进度记录 |
-| [PROGRESS_2026-05-16.md](./PROGRESS_2026-05-16.md) | 进度记录 |
-| [PROGRESS_2026-05-20.md](./PROGRESS_2026-05-20.md) | 进度记录 |
-| [PROGRESS_2026-05-21.md](./PROGRESS_2026-05-21.md) | 进度记录 |
-| [PROGRESS_2026-05-23.md](./PROGRESS_2026-05-23.md) | 进度记录 |
-| [PROGRESS_2026-05-25.md](./PROGRESS_2026-05-25.md) | 进度记录 |
+
+## Additional Notes
+
+补充记录类文档位于 `docs/` 目录下，可按文件名查阅：
+
+- `CODEX_RUNBOOK.md`
+- `CODEX_IMPROVEMENTS_SUMMARY.md`
+- `PAPER_DRAFT_2026-05-21.md`
+- `PROGRESS_2026-05-14.md`
+- `PROGRESS_2026-05-15.md`
+- `PROGRESS_2026-05-16.md`
+- `PROGRESS_2026-05-20.md`
+- `PROGRESS_2026-05-21.md`
+- `PROGRESS_2026-05-23.md`
+- `PROGRESS_2026-05-25.md`
 
 ## 项目流程
 
