@@ -1,0 +1,117 @@
+system:
+  name: "DeepResearchAgent"
+  version: "0.1.0"
+  log_level: "INFO"
+  work_dir: "./outputs"
+
+model:
+  backend: "openai"
+  backend_sampling:
+    openai:
+      temperature: 0.2
+      max_tokens: 1200
+      top_p: 0.9
+    modules:
+      planner:
+        temperature: 0.1
+        max_tokens: 1200
+      solver:
+        temperature: 0.2
+        max_tokens: 900
+      summarizer:
+        temperature: 0.2
+        max_tokens: 1400
+      judge:
+        temperature: 0.1
+        max_tokens: 600
+      red_agent:
+        temperature: 0.1
+        max_tokens: 600
+      blue_agent:
+        temperature: 0.1
+        max_tokens: 600
+      compressor:
+        temperature: 0.1
+        max_tokens: 600
+  backend_mapping:
+    solver: "openai"
+    planner: "openai"
+    summarizer: "openai"
+    judge: "openai"
+    red_agent: "openai"
+    blue_agent: "openai"
+    compressor: "openai"
+
+orchestrator:
+  max_concurrent: 2
+  global_timeout_seconds: 240
+  max_replan_rounds: 0
+  max_sub_questions: 3
+
+planner:
+  max_search_rounds_per_subagent: 2
+  enable_replan: false
+  enable_completeness_check: false
+  min_subtasks: 2
+  max_subtasks: 3
+
+compressor:
+  max_context_length: 6000
+  output_reserve_tokens: 800
+  l1_threshold: 0.6
+  l2_threshold: 0.8
+  l3_threshold: 0.95
+  embedding_model: "all-MiniLM-L6-v2"
+  enable_multilevel: true
+
+memory:
+  db_path: "outputs/memory_smoke.db"
+  max_entries: 2000
+  similarity_threshold_dup: 0.92
+  similarity_threshold_conflict: 0.65
+  evict_interval: 100
+  enable_vector_index: true
+
+evidence_policy:
+  mode: "heuristic"
+  model_path: "artifacts/evidence_policy.json"
+  blend_weight: 0.7
+  stop_threshold: 0.32
+  search_threshold: 0.22
+  expand_threshold: 0.45
+
+search_policy:
+  mode: "off"
+  enabled: false
+  model_path: "artifacts/search_policy.json"
+  continue_threshold: 0.58
+  stop_threshold: 0.66
+  heuristic_fallback: true
+
+adversarial:
+  enabled: false
+  max_rounds: 1
+  score_threshold: 9.5
+  delta_threshold: 0.2
+  save_logs: false
+
+summarizer:
+  min_report_chars: 800
+
+evolution:
+  enabled: false
+
+tools:
+  web_search:
+    enabled: true
+    mock_mode: true
+    max_results: 5
+    snippet_max_tokens: 256
+  arxiv_reader:
+    enabled: true
+    max_papers: 3
+    abstract_max_tokens: 512
+  code_sandbox:
+    enabled: false
+    timeout_seconds: 20
+    memory_limit_mb: 256
