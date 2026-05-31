@@ -328,6 +328,30 @@ def _mean(items: list[float]) -> float:
     return float(statistics.fmean(items))
 
 
+def _summarize_by_domain(success_rows: list[dict[str, Any]], query_items: list[dict[str, Any]]) -> dict[str, dict[str, float]]:
+    domain_by_query_id = {
+        str(item.get("id", "")): str(item.get("domain", "") or "")
+        for item in query_items
+    }
+    buckets: dict[str, list[dict[str, Any]]] = {}
+    for row in success_rows:
+        query_id = str(row.get("query_id", "") or "")
+        domain = domain_by_query_id.get(query_id, "")
+        buckets.setdefault(domain, []).append(row)
+
+    summary: dict[str, dict[str, float]] = {}
+    for domain, rows in sorted(buckets.items()):
+        summary[domain] = {
+            "num_success": len(rows),
+            "avg_composite_score": _mean([r["score"]["composite_score"] for r in rows]),
+            "avg_factual_accuracy": _mean([r["score"]["factual_accuracy"] for r in rows]),
+            "avg_citation_coverage": _mean([r["score"]["citation_coverage"] for r in rows]),
+            "avg_estimated_token_cost": _mean([r["cost"]["estimated_token_cost"] for r in rows]),
+            "avg_tool_calls": _mean([r["cost"]["tool_calls"] for r in rows]),
+        }
+    return summary
+
+
 def _run_mode(
     *,
     mode: str,
@@ -419,6 +443,7 @@ def _run_mode(
             logger.warning("[%s][%s/%s] failed: %s", mode, idx, len(query_items), exc)
 
     success_rows = [r for r in mode_records if r.get("status") == "success"]
+    domain_summary = _summarize_by_domain(success_rows, query_items)
     summary = {
         "num_total": len(mode_records),
         "num_success": len(success_rows),
@@ -444,11 +469,15 @@ def _run_mode(
             float(r.get("metadata_summary", {}).get("policy_stats", {}).get("policy_enforce_stop_count", 0.0) or 0.0)
             for r in success_rows
         ]),
+        "domain_macro_avg_composite_score": _mean(
+            [item["avg_composite_score"] for item in domain_summary.values()]
+        ),
     }
     return {
         "mode": mode,
         "summary": summary,
         "records": mode_records,
+        "domain_summary": domain_summary,
         "preflight": preflight,
     }
 
@@ -478,6 +507,22 @@ def _render_markdown(payload: dict[str, Any]) -> str:
             f" | {s.get('avg_estimated_token_cost', 0.1):.1f}"
             f" | {s.get('avg_tool_calls', 0.1):.2f} |"
         )
+
+    has_domain_summary = any(run.get("domain_summary") for run in payload.get("runs", []))
+    if has_domain_summary:
+        lines.extend([
+            "",
+            "## Domain Summary",
+            "",
+            "| mode | domain_macro_avg_composite | covered_domains |",
+            "|---|---:|---:|",
+        ])
+        for run in payload.get("runs", []):
+            s = run.get("summary", {})
+            domain_summary = run.get("domain_summary", {}) if isinstance(run.get("domain_summary"), dict) else {}
+            lines.append(
+                f"| {run.get('mode')} | {s.get('domain_macro_avg_composite_score', 0.0):.3f} | {len(domain_summary)} |"
+            )
 
     preflight_rows = [
         run for run in payload.get("runs", [])
@@ -532,13 +577,14 @@ def _render_markdown(payload: dict[str, Any]) -> str:
         if not learned_preflight.get("is_ready", True) or not heuristic_preflight.get("is_ready", True):
             lines.append("- Experiment status: blocked before live execution because required backend env vars are missing.")
         quality_gap = by_mode["learned"].get("avg_composite_score", 0.0) - by_mode["heuristic"].get("avg_composite_score", 0.0)
+        macro_quality_gap = by_mode["learned"].get("domain_macro_avg_composite_score", 0.0) - by_mode["heuristic"].get("domain_macro_avg_composite_score", 0.0)
         factual_gap = by_mode["learned"].get("avg_factual_accuracy", 0.0) - by_mode["heuristic"].get("avg_factual_accuracy", 0.0)
         citation_gap = by_mode["learned"].get("avg_citation_coverage", 0.0) - by_mode["heuristic"].get("avg_citation_coverage", 0.0)
         cost_gap = by_mode["learned"].get("avg_estimated_token_cost", 0.0) - by_mode["heuristic"].get("avg_estimated_token_cost", 0.0)
         tool_gap = by_mode["learned"].get("avg_tool_calls", 0.0) - by_mode["heuristic"].get("avg_tool_calls", 0.0)
         elapsed_gap = by_mode["learned"].get("avg_elapsed_seconds", 0.0) - by_mode["heuristic"].get("avg_elapsed_seconds", 0.0)
         lines.append(
-            f"- Learned vs Heuristic: quality_delta={quality_gap:+.3f}, factual_delta={factual_gap:+.3f}, citation_delta={citation_gap:+.3f}, token_delta={cost_gap:+.1f}, tool_delta={tool_gap:+.2f}, elapsed_delta={elapsed_gap:+.2f}s"
+            f"- Learned vs Heuristic: quality_delta={quality_gap:+.3f}, macro_quality_delta={macro_quality_gap:+.3f}, factual_delta={factual_gap:+.3f}, citation_delta={citation_gap:+.3f}, token_delta={cost_gap:+.1f}, tool_delta={tool_gap:+.2f}, elapsed_delta={elapsed_gap:+.2f}s"
         )
         if quality_gap > 0 and citation_gap >= 0 and cost_gap <= 0:
             lines.append("- Interpretation: learned policy improved quality while reducing or keeping cost.")

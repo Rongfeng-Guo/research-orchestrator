@@ -14,6 +14,7 @@ from scripts.run_policy_head2head import (
     _load_queries,
     _preflight_backend_requirements,
     _render_markdown,
+    _summarize_by_domain,
 )
 
 
@@ -60,8 +61,8 @@ def test_render_markdown_contains_conclusion_hints() -> None:
         "query_count": 3,
         "runs": [
             {"mode": "off", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.40, "avg_factual_accuracy": 0.42, "avg_citation_coverage": 0.35, "avg_search_policy_score": 0.41, "avg_estimated_token_cost": 100.0, "avg_tool_calls": 1.0}},
-            {"mode": "heuristic", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.50, "avg_factual_accuracy": 0.52, "avg_citation_coverage": 0.45, "avg_search_policy_score": 0.51, "avg_estimated_token_cost": 95.0, "avg_tool_calls": 1.2, "avg_policy_advice_count": 1.0, "avg_guardrail_trigger_count": 0.0, "avg_policy_enforce_stop_count": 0.1}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
-            {"mode": "learned", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.58, "avg_factual_accuracy": 0.60, "avg_citation_coverage": 0.50, "avg_search_policy_score": 0.59, "avg_estimated_token_cost": 90.0, "avg_tool_calls": 1.1, "avg_policy_advice_count": 1.8, "avg_guardrail_trigger_count": 0.7, "avg_policy_enforce_stop_count": 0.4}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
+            {"mode": "heuristic", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.50, "avg_factual_accuracy": 0.52, "avg_citation_coverage": 0.45, "avg_search_policy_score": 0.51, "avg_estimated_token_cost": 95.0, "avg_tool_calls": 1.2, "avg_policy_advice_count": 1.0, "avg_guardrail_trigger_count": 0.0, "avg_policy_enforce_stop_count": 0.1, "domain_macro_avg_composite_score": 0.49}, "domain_summary": {"科技": {"avg_composite_score": 0.52}, "医疗": {"avg_composite_score": 0.46}}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
+            {"mode": "learned", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.58, "avg_factual_accuracy": 0.60, "avg_citation_coverage": 0.50, "avg_search_policy_score": 0.59, "avg_estimated_token_cost": 90.0, "avg_tool_calls": 1.1, "avg_policy_advice_count": 1.8, "avg_guardrail_trigger_count": 0.7, "avg_policy_enforce_stop_count": 0.4, "domain_macro_avg_composite_score": 0.57}, "domain_summary": {"科技": {"avg_composite_score": 0.60}, "医疗": {"avg_composite_score": 0.54}}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
         ],
     }
 
@@ -73,6 +74,8 @@ def test_render_markdown_contains_conclusion_hints() -> None:
     assert "Policy Instrumentation" in md
     assert "avg_guardrail_triggers" in md
     assert "Backend Preflight" in md
+    assert "Domain Summary" in md
+    assert "macro_quality_delta" in md
 
 
 def test_preflight_backend_requirements_reports_missing_backends(monkeypatch) -> None:
@@ -110,6 +113,25 @@ def test_load_queries_balances_domains_for_benchmark_sampling() -> None:
     assert len(items) == 5
     assert len(set(domains)) >= 3
     assert domains[0] != domains[1]
+
+
+def test_summarize_by_domain_aggregates_scores() -> None:
+    success_rows = [
+        {"query_id": "q1", "score": {"composite_score": 0.6, "factual_accuracy": 0.5, "citation_coverage": 0.4}, "cost": {"estimated_token_cost": 10.0, "tool_calls": 1.0}},
+        {"query_id": "q2", "score": {"composite_score": 0.8, "factual_accuracy": 0.7, "citation_coverage": 0.6}, "cost": {"estimated_token_cost": 12.0, "tool_calls": 2.0}},
+        {"query_id": "q3", "score": {"composite_score": 0.3, "factual_accuracy": 0.2, "citation_coverage": 0.1}, "cost": {"estimated_token_cost": 8.0, "tool_calls": 1.0}},
+    ]
+    query_items = [
+        {"id": "q1", "domain": "科技"},
+        {"id": "q2", "domain": "科技"},
+        {"id": "q3", "domain": "医疗"},
+    ]
+
+    summary = _summarize_by_domain(success_rows, query_items)
+
+    assert summary["科技"]["num_success"] == 2
+    assert round(summary["科技"]["avg_composite_score"], 3) == 0.7
+    assert round(summary["医疗"]["avg_composite_score"], 3) == 0.3
 
 
 def test_evaluate_report_uses_question_id_and_metric_keys(monkeypatch) -> None:
