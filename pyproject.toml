@@ -3,16 +3,16 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "deep-research-agent"
-version = "0.1.0"
-description = "基于自进化+对抗降噪的DeepResearch Agent"
+name = "research-orchestrator"
+version = "0.1.1"
+description = "A structured deep research orchestrator for complex, evidence-backed workflows"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "DeepResearch Team"},
+    {name = "Rongfeng Guo", email = "rongfengguo.cs@gmail.com"},
 ]
-keywords = ["deep-research", "agent", "llm", "self-evolution", "adversarial", "multi-agent"]
+keywords = ["research-orchestrator", "deep-research", "agent", "llm", "evidence", "multi-agent"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -84,12 +84,15 @@ run-judge = "scripts.run_judge:main"
 run-evolution = "scripts.run_evolution:main"
 
 [project.urls]
-Homepage = "https://github.com/your-org/deep-research-agent"
-Repository = "https://github.com/your-org/deep-research-agent"
-Issues = "https://github.com/your-org/deep-research-agent/issues"
+Homepage = "https://github.com/Rongfeng-Guo/research-orchestrator"
+Repository = "https://github.com/Rongfeng-Guo/research-orchestrator"
+Issues = "https://github.com/Rongfeng-Guo/research-orchestrator/issues"
 
 [tool.setuptools]
-packages = ["src", "evaluation", "scripts", "configs"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["src*", "evaluation*", "scripts", "configs"]
 
 [tool.setuptools.package-data]
 configs = ["*.yaml", "**/*.yaml"]
