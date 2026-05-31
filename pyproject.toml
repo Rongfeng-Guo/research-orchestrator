@@ -71,7 +71,7 @@ dev = [
 ]
 # 全部可选依赖
 all = [
-    "deep-research-agent[serve,train,dev]",
+    "research-orchestrator[serve,train,dev]",
 ]
 
 [project.scripts]

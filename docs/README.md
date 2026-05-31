@@ -1,4 +1,4 @@
-# DeepResearch Agent 文档总览
+# Research Orchestrator 文档总览
 
 这套 `docs/` 包含项目主流程、架构、配置、评测和目录结构说明。
 
@@ -68,7 +68,7 @@
 
 ## 文档用途
 
-- 阅读源码并理解 deep research workflow
+- 阅读源码并理解 research orchestrator workflow
 - 在现有框架上扩展工具、评测或界面
 - 作为 Agent 系统课程项目参考
 - 复用现有实验脚本进行 benchmark 和策略研究

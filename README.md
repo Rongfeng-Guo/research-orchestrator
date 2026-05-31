@@ -1,5 +1,8 @@
 # Research Orchestrator
 
+[![Python CI](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/python-ci.yml)
+[![Packaging Check](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/packaging-check.yml/badge.svg)](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/packaging-check.yml)
+
 面向复杂研究任务的结构化研究工作流实现。
 
 该仓库提供从问题拆解、任务调度、工具调用、共享记忆到报告生成的完整流程。
@@ -173,6 +176,12 @@ pytest tests/test_policy_head2head_cv.py -q
 pytest tests/test_search_policy.py -q
 pytest tests/test_run_eval_hotpotqa.py -q
 ```
+
+## Development
+
+- GitHub Actions 会在 `push` 到 `main` 和 `pull_request` 时运行全量测试
+- 可手动触发 `Packaging Check` 验证源码分发与 wheel 构建
+- 本地开发建议先运行 `pytest -q`，再执行需要的脚本或评测入口
 
 ## License
 
