@@ -35,6 +35,35 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from evaluation.benchmarks.research_bench import ResearchBench
 from src.core.runner import initialize_modules, load_config, run_research, setup_logging
+from src.models.model_router import ModelRouter
+
+
+def _required_backends(config: dict[str, Any]) -> list[str]:
+    model_cfg = config.get("model", {}) or {}
+    default_backend = str(model_cfg.get("backend", "") or "").strip().lower()
+    backend_mapping = model_cfg.get("backend_mapping", {}) or {}
+
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for module_name in ["solver", "planner", "summarizer", "judge", "red_agent", "blue_agent", "compressor"]:
+        backend = str(backend_mapping.get(module_name) or default_backend or "").strip().lower()
+        if not backend or backend in seen:
+            continue
+        seen.add(backend)
+        ordered.append(backend)
+    return ordered
+
+
+def _preflight_backend_requirements(config: dict[str, Any]) -> dict[str, Any]:
+    required = _required_backends(config)
+    configured = [name for name in required if ModelRouter._is_backend_configured(name)]
+    missing = [name for name in required if name not in configured]
+    return {
+        "required_backends": required,
+        "configured_backends": configured,
+        "missing_backends": missing,
+        "is_ready": not missing,
+    }
 
 
 def _load_queries(
@@ -281,7 +310,48 @@ def _run_mode(
 ) -> dict[str, Any]:
     logger = logging.getLogger("head2head")
     cfg = _apply_mode_overrides(base_config, mode, args)
+    preflight = _preflight_backend_requirements(cfg)
     mode_records: list[dict[str, Any]] = []
+
+    if not preflight["is_ready"]:
+        missing = ", ".join(preflight["missing_backends"])
+        error = (
+            "preflight_failed: missing backend configuration for "
+            f"{missing}. Add the corresponding *_API_KEY and/or *_BASE_URL in .env or .env.local."
+        )
+        logger.warning("[%s] %s", mode, error)
+        for item in query_items:
+            mode_records.append(
+                {
+                    "query_id": item["id"],
+                    "query": item["query"],
+                    "status": "failed",
+                    "elapsed_seconds": 0.0,
+                    "error": error,
+                }
+            )
+        return {
+            "mode": mode,
+            "summary": {
+                "num_total": len(mode_records),
+                "num_success": 0,
+                "num_failed": len(mode_records),
+                "avg_composite_score": 0.0,
+                "avg_factual_accuracy": 0.0,
+                "avg_citation_coverage": 0.0,
+                "avg_search_policy_score": 0.0,
+                "avg_tool_calls": 0.0,
+                "avg_search_calls": 0.0,
+                "avg_browser_calls": 0.0,
+                "avg_estimated_token_cost": 0.0,
+                "avg_elapsed_seconds": 0.0,
+                "avg_policy_advice_count": 0.0,
+                "avg_guardrail_trigger_count": 0.0,
+                "avg_policy_enforce_stop_count": 0.0,
+            },
+            "records": mode_records,
+            "preflight": preflight,
+        }
 
     for idx, item in enumerate(query_items, 1):
         query_id = item["id"]
@@ -352,6 +422,7 @@ def _run_mode(
         "mode": mode,
         "summary": summary,
         "records": mode_records,
+        "preflight": preflight,
     }
 
 
@@ -381,6 +452,26 @@ def _render_markdown(payload: dict[str, Any]) -> str:
             f" | {s.get('avg_tool_calls', 0.1):.2f} |"
         )
 
+    preflight_rows = [
+        run for run in payload.get("runs", [])
+        if isinstance(run.get("preflight"), dict) and run["preflight"].get("required_backends")
+    ]
+    if preflight_rows:
+        lines.extend([
+            "",
+            "## Backend Preflight",
+            "",
+            "| mode | ready | required_backends | missing_backends |",
+            "|---|---:|---|---|",
+        ])
+        for run in preflight_rows:
+            preflight = run.get("preflight", {})
+            lines.append(
+                f"| {run.get('mode')} | {'yes' if preflight.get('is_ready') else 'no'} "
+                f"| {', '.join(preflight.get('required_backends', [])) or '-'} "
+                f"| {', '.join(preflight.get('missing_backends', [])) or '-'} |"
+            )
+
     if any(run.get("summary", {}).get("avg_policy_advice_count", 0.0) for run in payload.get("runs", [])):
         lines.extend([
             "",
@@ -407,6 +498,12 @@ def _render_markdown(payload: dict[str, Any]) -> str:
     lines.append(f"- Lowest cost mode (avg estimated tokens): `{best_cost}`")
 
     if by_mode and "learned" in by_mode and "heuristic" in by_mode:
+        learned_run = next((run for run in payload.get("runs", []) if run.get("mode") == "learned"), {})
+        heuristic_run = next((run for run in payload.get("runs", []) if run.get("mode") == "heuristic"), {})
+        learned_preflight = learned_run.get("preflight", {}) if isinstance(learned_run.get("preflight"), dict) else {}
+        heuristic_preflight = heuristic_run.get("preflight", {}) if isinstance(heuristic_run.get("preflight"), dict) else {}
+        if not learned_preflight.get("is_ready", True) or not heuristic_preflight.get("is_ready", True):
+            lines.append("- Experiment status: blocked before live execution because required backend env vars are missing.")
         quality_gap = by_mode["learned"].get("avg_composite_score", 0.0) - by_mode["heuristic"].get("avg_composite_score", 0.0)
         factual_gap = by_mode["learned"].get("avg_factual_accuracy", 0.0) - by_mode["heuristic"].get("avg_factual_accuracy", 0.0)
         citation_gap = by_mode["learned"].get("avg_citation_coverage", 0.0) - by_mode["heuristic"].get("avg_citation_coverage", 0.0)

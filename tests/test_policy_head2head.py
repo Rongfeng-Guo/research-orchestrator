@@ -8,7 +8,12 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.run_policy_head2head import _apply_mode_overrides, _evaluate_report, _render_markdown
+from scripts.run_policy_head2head import (
+    _apply_mode_overrides,
+    _evaluate_report,
+    _preflight_backend_requirements,
+    _render_markdown,
+)
 
 
 def _base_config() -> dict:
@@ -54,8 +59,8 @@ def test_render_markdown_contains_conclusion_hints() -> None:
         "query_count": 3,
         "runs": [
             {"mode": "off", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.40, "avg_factual_accuracy": 0.42, "avg_citation_coverage": 0.35, "avg_search_policy_score": 0.41, "avg_estimated_token_cost": 100.0, "avg_tool_calls": 1.0}},
-            {"mode": "heuristic", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.50, "avg_factual_accuracy": 0.52, "avg_citation_coverage": 0.45, "avg_search_policy_score": 0.51, "avg_estimated_token_cost": 95.0, "avg_tool_calls": 1.2, "avg_policy_advice_count": 1.0, "avg_guardrail_trigger_count": 0.0, "avg_policy_enforce_stop_count": 0.1}},
-            {"mode": "learned", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.58, "avg_factual_accuracy": 0.60, "avg_citation_coverage": 0.50, "avg_search_policy_score": 0.59, "avg_estimated_token_cost": 90.0, "avg_tool_calls": 1.1, "avg_policy_advice_count": 1.8, "avg_guardrail_trigger_count": 0.7, "avg_policy_enforce_stop_count": 0.4}},
+            {"mode": "heuristic", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.50, "avg_factual_accuracy": 0.52, "avg_citation_coverage": 0.45, "avg_search_policy_score": 0.51, "avg_estimated_token_cost": 95.0, "avg_tool_calls": 1.2, "avg_policy_advice_count": 1.0, "avg_guardrail_trigger_count": 0.0, "avg_policy_enforce_stop_count": 0.1}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
+            {"mode": "learned", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.58, "avg_factual_accuracy": 0.60, "avg_citation_coverage": 0.50, "avg_search_policy_score": 0.59, "avg_estimated_token_cost": 90.0, "avg_tool_calls": 1.1, "avg_policy_advice_count": 1.8, "avg_guardrail_trigger_count": 0.7, "avg_policy_enforce_stop_count": 0.4}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
         ],
     }
 
@@ -66,6 +71,28 @@ def test_render_markdown_contains_conclusion_hints() -> None:
     assert "citation_delta" in md
     assert "Policy Instrumentation" in md
     assert "avg_guardrail_triggers" in md
+    assert "Backend Preflight" in md
+
+
+def test_preflight_backend_requirements_reports_missing_backends(monkeypatch) -> None:
+    monkeypatch.setattr("scripts.run_policy_head2head.ModelRouter._is_backend_configured", lambda _name: False)
+
+    summary = _preflight_backend_requirements(
+        {
+            "model": {
+                "backend": "openai",
+                "backend_mapping": {
+                    "solver": "openai",
+                    "planner": "openai",
+                    "summarizer": "openai",
+                },
+            }
+        }
+    )
+
+    assert summary["required_backends"] == ["openai"]
+    assert summary["missing_backends"] == ["openai"]
+    assert summary["is_ready"] is False
 
 
 def test_evaluate_report_uses_question_id_and_metric_keys(monkeypatch) -> None:
