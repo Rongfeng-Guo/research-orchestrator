@@ -3,7 +3,7 @@
 """
 scripts/run_all_experiments.py
 ================================================================================
-DeepResearch Agent 批量实验脚本
+Research Orchestrator 批量实验脚本
 
 一键运行全部核心实验，生成结构化汇总报告：
   1. 模块消融实验（full / no_adversarial / no_compressor / no_memory / no_evolution）
@@ -244,7 +244,7 @@ class ExperimentRunner:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         lines = [
-            "# DeepResearch Agent 批量实验汇总报告",
+            "# Research Orchestrator 批量实验汇总报告",
             "",
             f"- **实验时间**: {timestamp}",
             f"- **总耗时**: {total_elapsed/60:.1f} 分钟",
@@ -340,7 +340,7 @@ class ExperimentRunner:
     def run_all(self) -> None:
         """按顺序运行全部实验（不跳过任何一项）。"""
         print("=" * 70)
-        print("DeepResearch Agent 批量实验启动 —— 全量模式")
+        print("Research Orchestrator 批量实验启动 —— 全量模式")
         print("=" * 70)
         print(f"输出目录: {self.output_dir}")
         abl_str = str(self.ablation_q) if self.ablation_q else "全部可用"
@@ -375,7 +375,7 @@ class ExperimentRunner:
 # ---------------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="DeepResearch Agent 批量实验脚本",
+        description="Research Orchestrator 批量实验脚本",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 面试推荐默认配置（约 12 小时，拉满样本量，不跳过任何实验）：

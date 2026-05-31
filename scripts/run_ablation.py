@@ -176,7 +176,7 @@ def run_module_ablation(config: dict, questions: list[dict[str, Any]], output_di
 
     # 组装输出
     report = {
-        "evaluation_name": "DeepResearch Agent 模块消融实验（含统计显著性）",
+        "evaluation_name": "Research Orchestrator 模块消融实验（含统计显著性）",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "num_questions": len(questions),
         "systems": [
@@ -233,7 +233,7 @@ def run_rounds_ablation(config: dict, questions: list[dict[str, Any]], max_round
         stats_report[name] = compute_ablation_stats(base_result, result)
 
     report = {
-        "evaluation_name": "DeepResearch Agent 对抗轮数消融实验（含统计显著性）",
+        "evaluation_name": "Research Orchestrator 对抗轮数消融实验（含统计显著性）",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "num_questions": len(questions),
         "systems": [
@@ -275,7 +275,7 @@ def run_rounds_ablation(config: dict, questions: list[dict[str, Any]], max_round
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="DeepResearch Agent 消融实验脚本",
+        description="Research Orchestrator 消融实验脚本",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:

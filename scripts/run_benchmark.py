@@ -3,7 +3,7 @@
 """
 scripts/run_benchmark.py
 ================================================================================
-DeepResearch Agent 定量评测脚本
+Research Orchestrator 定量评测脚本
 
 评测设计：
     对比 "单轮 LLM 直接回答" vs "Agent 完整流程" 的研究质量。
@@ -107,7 +107,7 @@ def auto_score(report_a: str, report_b: str, query: str) -> dict:
 # 主流程
 # ---------------------------------------------------------------------------
 async def main() -> None:
-    parser = argparse.ArgumentParser(description="DeepResearch Agent Benchmark")
+    parser = argparse.ArgumentParser(description="Research Orchestrator Benchmark")
     parser.add_argument("--queries_file", type=str, default=None, help="每行一个查询问题的文件")
     parser.add_argument("--queries", type=str, nargs="+", default=None, help="直接在命令行传入问题")
     parser.add_argument("--output", type=str, default="outputs/benchmark_results.json", help="结果输出路径")

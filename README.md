@@ -183,6 +183,7 @@ pytest tests/test_run_eval_hotpotqa.py -q
 - 可手动触发 `Packaging Check` 验证源码分发与 wheel 构建
 - 本地开发建议先运行 `pytest -q`，再执行需要的脚本或评测入口
 - 协作规范见 [CONTRIBUTING.md](CONTRIBUTING.md)、[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)、[SECURITY.md](SECURITY.md)
+- 发布变更记录见 [CHANGELOG.md](CHANGELOG.md)，发布前检查见 [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)
 
 ## License
 

@@ -3,7 +3,7 @@
 """
 scripts/run_repl.py
 ================================================================================
-DeepResearch Agent 交互式 REPL 单会话脚本。
+Research Orchestrator 交互式 REPL 单会话脚本。
 
 功能：
   1. 启动时列出已有 sessions，支持新建或继承
@@ -57,7 +57,7 @@ def print_help() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="DeepResearch Agent 交互式 REPL",
+        description="Research Orchestrator 交互式 REPL",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--config", type=str, default=None, help="配置文件路径")
@@ -81,7 +81,7 @@ def main() -> None:
         sessions = list_sessions(db_path)
 
         print("=" * 50)
-        print("DeepResearch Agent 交互式 REPL")
+        print("Research Orchestrator 交互式 REPL")
         print("=" * 50)
 
         if sessions:

@@ -1,4 +1,4 @@
-# DeepResearch Agent 研究定位与实验设计记录
+# Research Orchestrator 研究定位与实验设计记录
 
 日期：2026-05-14
 

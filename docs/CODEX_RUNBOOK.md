@@ -1,4 +1,4 @@
-# DeepResearch Agent 运行记录与环境说明
+# Research Orchestrator 运行记录与环境说明
 
 本文档记录本仓库的运行方式、环境配置、关键代码结构和运行链路，可作为补充说明文档使用。
 
