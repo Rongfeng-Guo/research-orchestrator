@@ -1,0 +1,33 @@
+name: Feature Request
+description: Propose a new capability, workflow, or improvement for Research Orchestrator
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What limitation or missing workflow are you trying to solve?
+      placeholder: The current workflow cannot ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the change you want and how it should behave.
+      placeholder: Add a new tool / evaluation mode / config option that ...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: List other approaches you considered, if any.
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation Plan
+      description: How should this be tested or evaluated?
+      placeholder: Unit tests, smoke run, benchmark delta, docs update, etc.

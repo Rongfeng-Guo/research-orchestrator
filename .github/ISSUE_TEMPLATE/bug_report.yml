@@ -1,0 +1,45 @@
+name: Bug Report
+description: Report a reproducible bug or regression in Research Orchestrator
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the bug in one or two sentences.
+      placeholder: What failed, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction Steps
+      description: Provide the exact commands, inputs, or config changes needed to reproduce the issue.
+      placeholder: |
+        1. Run ...
+        2. Use config ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include Python version, OS, relevant model/search backend, and whether mock mode was enabled.
+      placeholder: Python 3.11, Windows 11, openai backend, mock_mode=true
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Output
+      description: Paste the relevant traceback, logs, or failing output.
+      render: shell
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Explain what this blocks or regresses.
+      placeholder: CI failure, broken CLI path, invalid benchmark output, etc.
