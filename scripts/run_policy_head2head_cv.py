@@ -258,17 +258,50 @@ def build_query_folds(
 
 def aggregate_cv_runs(fold_payloads: list[dict[str, Any]]) -> dict[str, Any]:
     mode_to_records: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    mode_to_domain_rows: dict[str, dict[str, list[dict[str, Any]]]] = defaultdict(lambda: defaultdict(list))
+    mode_to_preflight: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for fold_payload in fold_payloads:
         for run in fold_payload.get("runs", []):
             mode = str(run.get("mode", "") or "")
             if not mode:
                 continue
             mode_to_records[mode].extend(run.get("records", []))
+            if isinstance(run.get("preflight"), dict):
+                mode_to_preflight[mode].append(run["preflight"])
+            if isinstance(run.get("domain_summary"), dict):
+                for domain, domain_summary in run["domain_summary"].items():
+                    if isinstance(domain_summary, dict):
+                        mode_to_domain_rows[mode][str(domain)].append(domain_summary)
 
     runs: list[dict[str, Any]] = []
     for mode in sorted(mode_to_records):
         records = list(mode_to_records[mode])
         success_rows = [row for row in records if row.get("status") == "success"]
+        domain_summary: dict[str, dict[str, float]] = {}
+        for domain, rows in sorted(mode_to_domain_rows[mode].items()):
+            domain_summary[domain] = {
+                "num_success": int(sum(_safe_int(row.get("num_success", 0)) for row in rows)),
+                "avg_composite_score": _mean([_safe_float(row.get("avg_composite_score", 0.0)) for row in rows]),
+                "avg_factual_accuracy": _mean([_safe_float(row.get("avg_factual_accuracy", 0.0)) for row in rows]),
+                "avg_citation_coverage": _mean([_safe_float(row.get("avg_citation_coverage", 0.0)) for row in rows]),
+                "avg_estimated_token_cost": _mean([_safe_float(row.get("avg_estimated_token_cost", 0.0)) for row in rows]),
+                "avg_tool_calls": _mean([_safe_float(row.get("avg_tool_calls", 0.0)) for row in rows]),
+            }
+        preflight_rows = mode_to_preflight.get(mode, [])
+        required_backends = sorted(
+            {
+                backend
+                for row in preflight_rows
+                for backend in row.get("required_backends", [])
+            }
+        )
+        missing_backends = sorted(
+            {
+                backend
+                for row in preflight_rows
+                for backend in row.get("missing_backends", [])
+            }
+        )
         runs.append(
             {
                 "mode": mode,
@@ -325,8 +358,17 @@ def aggregate_cv_runs(fold_payloads: list[dict[str, Any]]) -> dict[str, Any]:
                             for row in success_rows
                         ]
                     ),
+                    "domain_macro_avg_composite_score": _mean(
+                        [_safe_float(item.get("avg_composite_score", 0.0)) for item in domain_summary.values()]
+                    ),
                 },
                 "records": records,
+                "domain_summary": domain_summary,
+                "preflight": {
+                    "required_backends": required_backends,
+                    "missing_backends": missing_backends,
+                    "is_ready": not missing_backends,
+                },
             }
         )
     return {"runs": runs}
@@ -352,6 +394,37 @@ def render_cv_markdown(payload: dict[str, Any]) -> str:
             "runs": aggregate.get("runs", []),
         }
         lines.append(_render_head2head_markdown(head2head_payload).strip())
+        lines.append("")
+        lines.extend(
+            [
+                "## Aggregate Domain Summary",
+                "",
+                "| mode | domain_macro_avg_composite | covered_domains |",
+                "|---|---:|---:|",
+            ]
+        )
+        for run in aggregate.get("runs", []):
+            summary = run.get("summary", {})
+            domain_summary = run.get("domain_summary", {}) if isinstance(run.get("domain_summary"), dict) else {}
+            lines.append(
+                f"| {run.get('mode')} | {summary.get('domain_macro_avg_composite_score', 0.0):.3f} | {len(domain_summary)} |"
+            )
+        lines.append("")
+        lines.extend(
+            [
+                "## Aggregate Backend Preflight",
+                "",
+                "| mode | ready | required_backends | missing_backends |",
+                "|---|---:|---|---|",
+            ]
+        )
+        for run in aggregate.get("runs", []):
+            preflight = run.get("preflight", {}) if isinstance(run.get("preflight"), dict) else {}
+            lines.append(
+                f"| {run.get('mode')} | {'yes' if preflight.get('is_ready') else 'no'} | "
+                f"{', '.join(preflight.get('required_backends', [])) or '-'} | "
+                f"{', '.join(preflight.get('missing_backends', [])) or '-'} |"
+            )
         lines.append("")
 
     lines.extend(["## Fold Overview", ""])

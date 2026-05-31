@@ -103,6 +103,8 @@ def test_aggregate_cv_runs_merges_records_by_mode() -> None:
                                 "elapsed_seconds": 10,
                             }
                         ],
+                        "domain_summary": {"AI": {"num_success": 1, "avg_composite_score": 0.4, "avg_factual_accuracy": 0.0, "avg_citation_coverage": 0.2, "avg_estimated_token_cost": 100.0, "avg_tool_calls": 2.0}},
+                        "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True},
                     },
                     {
                         "mode": "learned",
@@ -120,6 +122,8 @@ def test_aggregate_cv_runs_merges_records_by_mode() -> None:
                                 "elapsed_seconds": 8,
                             }
                         ],
+                        "domain_summary": {"AI": {"num_success": 1, "avg_composite_score": 0.6, "avg_factual_accuracy": 0.0, "avg_citation_coverage": 0.3, "avg_estimated_token_cost": 90.0, "avg_tool_calls": 2.0}},
+                        "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True},
                     },
                 ]
             },
@@ -141,6 +145,8 @@ def test_aggregate_cv_runs_merges_records_by_mode() -> None:
                                 "elapsed_seconds": 12,
                             }
                         ],
+                        "domain_summary": {"法律": {"num_success": 1, "avg_composite_score": 0.5, "avg_factual_accuracy": 0.0, "avg_citation_coverage": 0.25, "avg_estimated_token_cost": 120.0, "avg_tool_calls": 3.0}},
+                        "preflight": {"required_backends": ["openai"], "missing_backends": ["openai"], "is_ready": False},
                     }
                 ]
             },
@@ -152,6 +158,9 @@ def test_aggregate_cv_runs_merges_records_by_mode() -> None:
     assert by_mode["heuristic"]["summary"]["avg_composite_score"] == 0.45
     assert by_mode["heuristic"]["summary"]["avg_estimated_token_cost"] == 110.0
     assert by_mode["heuristic"]["summary"]["avg_policy_advice_count"] == 1.0
+    assert by_mode["heuristic"]["summary"]["domain_macro_avg_composite_score"] == 0.45
+    assert by_mode["heuristic"]["preflight"]["required_backends"] == ["openai"]
+    assert by_mode["heuristic"]["preflight"]["missing_backends"] == ["openai"]
     assert by_mode["learned"]["summary"]["num_total"] == 1
     assert by_mode["learned"]["summary"]["avg_composite_score"] == 0.6
     assert by_mode["learned"]["summary"]["avg_guardrail_trigger_count"] == 1.0
@@ -199,8 +208,46 @@ def test_render_cv_markdown_includes_fold_delta_table() -> None:
                     ],
                 }
             ],
+            "aggregate_head2head": {
+                "runs": [
+                    {
+                        "mode": "heuristic",
+                        "summary": {
+                            "num_success": 2,
+                            "num_total": 2,
+                            "avg_composite_score": 0.5,
+                            "domain_macro_avg_composite_score": 0.48,
+                            "avg_citation_coverage": 0.2,
+                            "avg_estimated_token_cost": 100.0,
+                            "avg_tool_calls": 4.0,
+                            "avg_policy_advice_count": 1.0,
+                            "avg_guardrail_trigger_count": 0.0,
+                        },
+                        "domain_summary": {"AI": {"avg_composite_score": 0.5}, "法律": {"avg_composite_score": 0.46}},
+                        "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True},
+                    },
+                    {
+                        "mode": "learned",
+                        "summary": {
+                            "num_success": 2,
+                            "num_total": 2,
+                            "avg_composite_score": 0.6,
+                            "domain_macro_avg_composite_score": 0.58,
+                            "avg_citation_coverage": 0.3,
+                            "avg_estimated_token_cost": 80.0,
+                            "avg_tool_calls": 3.0,
+                            "avg_policy_advice_count": 2.0,
+                            "avg_guardrail_trigger_count": 1.0,
+                        },
+                        "domain_summary": {"AI": {"avg_composite_score": 0.6}, "法律": {"avg_composite_score": 0.56}},
+                        "preflight": {"required_backends": ["openai"], "missing_backends": ["openai"], "is_ready": False},
+                    },
+                ]
+            },
         }
     )
 
     assert "## Fold Deltas" in markdown
+    assert "## Aggregate Domain Summary" in markdown
+    assert "## Aggregate Backend Preflight" in markdown
     assert "| fold_01 | q1, q2 | +0.100 | +0.100 | -20.0 | -1.00 | quality up, cost down |" in markdown

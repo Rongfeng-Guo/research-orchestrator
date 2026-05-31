@@ -59,6 +59,10 @@ def test_render_markdown_contains_conclusion_hints() -> None:
         "created_at": "2026-05-14T00:00:00",
         "config_path": "configs/aliyun_smoke.yaml",
         "query_count": 3,
+        "queries": [
+            {"id": "q1", "domain": "科技", "query": "query 1"},
+            {"id": "q2", "domain": "医疗", "query": "query 2"},
+        ],
         "runs": [
             {"mode": "off", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.40, "avg_factual_accuracy": 0.42, "avg_citation_coverage": 0.35, "avg_search_policy_score": 0.41, "avg_estimated_token_cost": 100.0, "avg_tool_calls": 1.0}},
             {"mode": "heuristic", "summary": {"num_success": 3, "num_total": 3, "avg_composite_score": 0.50, "avg_factual_accuracy": 0.52, "avg_citation_coverage": 0.45, "avg_search_policy_score": 0.51, "avg_estimated_token_cost": 95.0, "avg_tool_calls": 1.2, "avg_policy_advice_count": 1.0, "avg_guardrail_trigger_count": 0.0, "avg_policy_enforce_stop_count": 0.1, "domain_macro_avg_composite_score": 0.49}, "domain_summary": {"科技": {"avg_composite_score": 0.52}, "医疗": {"avg_composite_score": 0.46}}, "preflight": {"required_backends": ["openai"], "missing_backends": [], "is_ready": True}},
@@ -76,6 +80,7 @@ def test_render_markdown_contains_conclusion_hints() -> None:
     assert "Backend Preflight" in md
     assert "Domain Summary" in md
     assert "macro_quality_delta" in md
+    assert "## Query Set" in md
 
 
 def test_preflight_backend_requirements_reports_missing_backends(monkeypatch) -> None:

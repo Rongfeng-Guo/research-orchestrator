@@ -484,6 +484,7 @@ def _run_mode(
 
 def _render_markdown(payload: dict[str, Any]) -> str:
     now = payload.get("created_at", "")
+    query_items = payload.get("queries", []) if isinstance(payload.get("queries"), list) else []
     lines = [
         "# Policy Head-to-Head Report",
         "",
@@ -491,11 +492,26 @@ def _render_markdown(payload: dict[str, Any]) -> str:
         f"- config: {payload.get('config_path')}",
         f"- query_count: {payload.get('query_count')}",
         "",
+    ]
+    if query_items:
+        lines.extend([
+            "## Query Set",
+            "",
+            "| query_id | domain | query |",
+            "|---|---|---|",
+        ])
+        for item in query_items:
+            lines.append(
+                f"| {str(item.get('id', '') or '')} | {str(item.get('domain', '') or '')} | {str(item.get('query', '') or '').replace('|', '/')} |"
+            )
+        lines.append("")
+
+    lines.extend([
         "## Summary",
         "",
         "| mode | success | avg_composite | avg_factual | avg_citation | avg_policy_score | avg_tokens | avg_tool_calls |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
-    ]
+    ])
     for run in payload.get("runs", []):
         s = run.get("summary", {})
         lines.append(
