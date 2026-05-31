@@ -38,6 +38,36 @@ from src.core.runner import initialize_modules, load_config, run_research, setup
 from src.models.model_router import ModelRouter
 
 
+def _interleave_by_domain(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    buckets: dict[str, list[dict[str, Any]]] = {}
+    for item in items:
+        domain = str(item.get("domain", "") or "")
+        buckets.setdefault(domain, []).append(item)
+
+    ordered: list[dict[str, Any]] = []
+    while True:
+        nonempty = [(domain, bucket) for domain, bucket in buckets.items() if bucket]
+        if not nonempty:
+            break
+        nonempty.sort(key=lambda pair: (-len(pair[1]), pair[0]))
+        for _, bucket in nonempty:
+            ordered.append(bucket.pop(0))
+    return ordered
+
+
+def _normalize_query_items(questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": str(q.get("id", f"bench_{i:04d}")),
+            "query": str(q.get("query", "")),
+            "domain": q.get("domain"),
+            "expected_topics": q.get("expected_topics"),
+            "ground_truth": q.get("ground_truth"),
+        }
+        for i, q in enumerate(questions, 1)
+    ]
+
+
 def _required_backends(config: dict[str, Any]) -> list[str]:
     model_cfg = config.get("model", {}) or {}
     default_backend = str(model_cfg.get("backend", "") or "").strip().lower()
@@ -72,6 +102,7 @@ def _load_queries(
     queries_file: str | None,
     num_questions: int,
     domain: str | None,
+    sampling_strategy: str,
 ) -> list[dict[str, Any]]:
     if query:
         return [{"id": "single_0001", "query": query.strip()}]
@@ -124,17 +155,13 @@ def _load_queries(
         return items
 
     bench = ResearchBench()
+    if sampling_strategy == "balanced_domains" and not domain:
+        questions = bench.get_questions(domain=None, n=None)
+        questions = _interleave_by_domain(list(questions))
+        return _normalize_query_items(questions[:num_questions])
+
     questions = bench.get_questions(domain=domain, n=num_questions)
-    return [
-        {
-            "id": str(q.get("id", f"bench_{i:04d}")),
-            "query": str(q.get("query", "")),
-            "domain": q.get("domain"),
-            "expected_topics": q.get("expected_topics"),
-            "ground_truth": q.get("ground_truth"),
-        }
-        for i, q in enumerate(questions, 1)
-    ]
+    return _normalize_query_items(list(questions))
 
 
 def _apply_mode_overrides(config: dict[str, Any], mode: str, args: argparse.Namespace) -> dict[str, Any]:
@@ -534,6 +561,13 @@ def main() -> None:
     parser.add_argument("--queries_file", type=str, default=None, help="json/jsonl query file")
     parser.add_argument("--num_questions", type=int, default=5, help="number of benchmark queries if no query provided")
     parser.add_argument("--domain", type=str, default=None, help="benchmark domain filter")
+    parser.add_argument(
+        "--sampling-strategy",
+        type=str,
+        choices=["benchmark_order", "balanced_domains"],
+        default="balanced_domains",
+        help="benchmark query sampling strategy when no queries_file/query is provided",
+    )
     parser.add_argument("--modes", type=str, default="off,heuristic,learned", help="comma-separated modes")
     parser.add_argument("--search-policy-model-path", type=str, default=None, help="override search policy model path")
     parser.add_argument("--evidence-policy-mode", type=str, choices=["heuristic", "learned"], default=None)
@@ -551,6 +585,7 @@ def main() -> None:
         queries_file=args.queries_file,
         num_questions=args.num_questions,
         domain=args.domain,
+        sampling_strategy=args.sampling_strategy,
     )
     if not query_items:
         raise SystemExit("no queries to run")
@@ -577,6 +612,7 @@ def main() -> None:
         "created_at": datetime.now().isoformat(),
         "config_path": args.config,
         "query_count": len(query_items),
+        "sampling_strategy": args.sampling_strategy,
         "queries": query_items,
         "runs": runs,
     }

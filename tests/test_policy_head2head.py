@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts.run_policy_head2head import (
     _apply_mode_overrides,
     _evaluate_report,
+    _load_queries,
     _preflight_backend_requirements,
     _render_markdown,
 )
@@ -93,6 +94,22 @@ def test_preflight_backend_requirements_reports_missing_backends(monkeypatch) ->
     assert summary["required_backends"] == ["openai"]
     assert summary["missing_backends"] == ["openai"]
     assert summary["is_ready"] is False
+
+
+def test_load_queries_balances_domains_for_benchmark_sampling() -> None:
+    items = _load_queries(
+        query=None,
+        queries_file=None,
+        num_questions=5,
+        domain=None,
+        sampling_strategy="balanced_domains",
+    )
+
+    domains = [str(item.get("domain", "") or "") for item in items]
+
+    assert len(items) == 5
+    assert len(set(domains)) >= 3
+    assert domains[0] != domains[1]
 
 
 def test_evaluate_report_uses_question_id_and_metric_keys(monkeypatch) -> None:
