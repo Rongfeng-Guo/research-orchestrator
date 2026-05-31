@@ -1,6 +1,22 @@
 name: Packaging Check
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "pyproject.toml"
+      - "requirements.txt"
+      - "__init__.py"
+      - "scripts/**"
+      - "src/**"
+  pull_request:
+    paths:
+      - "pyproject.toml"
+      - "requirements.txt"
+      - "__init__.py"
+      - "scripts/**"
+      - "src/**"
   workflow_dispatch:
 
 jobs:

@@ -3,7 +3,7 @@
 """
 scripts/build_search_cache.py
 ================================================================================
-Build an offline search-cache dataset from DeepResearch Agent runs.
+Build an offline search-cache dataset from Research Orchestrator runs.
 
 The output is JSONL. Each line contains:
   - the original query and optional benchmark metadata
@@ -430,7 +430,7 @@ def save_cache_records(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Build offline search-cache dataset from DeepResearch Agent runs",
+        description="Build offline search-cache dataset from Research Orchestrator runs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--config", type=str, default="configs/aliyun_smoke.yaml", help="配置文件路径")

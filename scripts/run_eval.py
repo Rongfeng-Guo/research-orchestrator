@@ -538,7 +538,7 @@ def evaluate_hotpotqa(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="DeepResearch Agent 标准评测脚本")
+    parser = argparse.ArgumentParser(description="Research Orchestrator 标准评测脚本")
     parser.add_argument("--benchmark", type=str, choices=["research_bench", "hotpotqa"],
                         required=True, help="评测基准")
     parser.add_argument("--num_questions", type=int, default=20, help="评测题目数量")

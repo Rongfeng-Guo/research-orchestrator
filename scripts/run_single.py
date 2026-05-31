@@ -3,7 +3,7 @@
 """
 scripts/run_single.py
 ================================================================================
-DeepResearch Agent 单条查询运行脚本。
+Research Orchestrator 单条查询运行脚本。
 
 Usage:
     python scripts/run_single.py --query "你的研究问题" [--config path/to/config.yaml]
@@ -62,7 +62,7 @@ def main() -> None:
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
     parser = argparse.ArgumentParser(
-        description="DeepResearch Agent 单条查询运行脚本",
+        description="Research Orchestrator 单条查询运行脚本",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:

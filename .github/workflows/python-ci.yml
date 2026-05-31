@@ -35,5 +35,11 @@ jobs:
       - name: Verify package metadata
         run: python -m compileall src scripts evaluation
 
+      - name: Run CLI smoke checks
+        run: |
+          python scripts/run_single.py --help
+          python scripts/run_eval.py --help
+          python scripts/build_search_cache.py --help
+
       - name: Run test suite
         run: pytest -q
