@@ -1,0 +1,43 @@
+name: Research Report
+
+on:
+  workflow_dispatch:
+
+jobs:
+  refresh-research-outputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Install runtime and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Refresh repository-level research outputs
+        run: python scripts/refresh_research_outputs.py
+
+      - name: Upload research reporting artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-report-${{ github.run_id }}
+          path: |
+            outputs/research_audit/**
+            outputs/research_index/**
+            outputs/research_brief/**
+            outputs/research_dashboard/**
+            outputs/research_refresh_manifest.json
+          if-no-files-found: error

@@ -2,6 +2,7 @@
 
 [![Python CI](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/python-ci.yml)
 [![Packaging Check](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/packaging-check.yml/badge.svg)](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/packaging-check.yml)
+[![Research Report](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/research-report.yml/badge.svg)](https://github.com/Rongfeng-Guo/research-orchestrator/actions/workflows/research-report.yml)
 
 面向复杂研究任务的结构化研究工作流实现。
 
@@ -181,6 +182,7 @@ pytest tests/test_run_eval_hotpotqa.py -q
 
 - GitHub Actions 会在 `push` 到 `main` 和 `pull_request` 时运行全量测试
 - 可手动触发 `Packaging Check` 验证源码分发与 wheel 构建
+- 可手动触发 `Research Report` 重新生成 `research_audit -> research_index -> research_brief -> research_dashboard` 并下载产物
 - 本地开发建议先运行 `pytest -q`，再执行需要的脚本或评测入口
 - 协作规范见 [CONTRIBUTING.md](CONTRIBUTING.md)、[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)、[SECURITY.md](SECURITY.md)
 - 发布变更记录见 [CHANGELOG.md](CHANGELOG.md)，发布前检查见 [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)
