@@ -32,13 +32,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.core.runner import initialize_modules, load_config, run_research, save_report, setup_logging
-from src.memory.memory_store import SharedMemoryStore
 
 
 def list_sessions(db_path: str) -> list[dict]:
     """列出数据库中所有 session。"""
     if not os.path.exists(db_path):
         return []
+    from src.memory.memory_store import SharedMemoryStore
+
     store = SharedMemoryStore(db_path=db_path, session_id="")
     return store.list_sessions()
 
