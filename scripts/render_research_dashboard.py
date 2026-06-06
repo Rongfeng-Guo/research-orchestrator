@@ -78,14 +78,21 @@ def _build_policy_leaderboard(audit_payload: dict[str, Any]) -> list[dict[str, A
 def _build_run_registry(index_payload: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for item in index_payload.get("artifacts", []):
-        if item.get("artifact_type") != "policy_head2head":
+        artifact_type = item.get("artifact_type")
+        if artifact_type not in {"policy_head2head", "policy_head2head_cv"}:
             continue
+        sampling_strategy = item.get("sampling_strategy")
+        if not sampling_strategy:
+            sampling_strategy = "cross_fold" if artifact_type == "policy_head2head_cv" else "front_slice"
         rows.append(
             {
+                "artifact_type": artifact_type,
                 "label": item.get("label"),
                 "created_at": item.get("created_at"),
                 "query_count": int(item.get("query_count", 0) or 0),
-                "sampling_strategy": item.get("sampling_strategy") or "front_slice",
+                "fold_count": int(item.get("fold_count", 0) or 0),
+                "sampling_strategy": sampling_strategy,
+                "source_label": item.get("source_label"),
                 "blocked_by_preflight": bool(item.get("blocked_by_preflight")),
                 "missing_backends": list(item.get("missing_backends", []) or []),
                 "quality_delta": float(item.get("quality_delta", 0.0) or 0.0),
@@ -108,7 +115,14 @@ def build_dashboard(
         if isinstance(audit_payload.get("policy_artifacts"), dict)
         else {}
     )
-    latest_run = next((item for item in index_payload.get("artifacts", []) if item.get("artifact_type") == "policy_head2head"), {})
+    latest_run = next(
+        (
+            item
+            for item in index_payload.get("artifacts", [])
+            if item.get("artifact_type") in {"policy_head2head", "policy_head2head_cv"}
+        ),
+        {},
+    )
 
     domain_table = _build_domain_table(benchmark.get("domain_distribution", {}) or {})
     leaderboard = _build_policy_leaderboard(audit_payload)
@@ -190,10 +204,19 @@ def write_markdown(dashboard: dict[str, Any], output_path: Path) -> None:
             f"{row.get('num_examples', 0)} | {row.get('browser_examples', 0)} | {row.get('label_imbalance_ratio', 0.0):.3f} |"
         )
 
-    lines.extend(["", "## Head-to-Head Run Registry", "", "| label | created_at | queries | sampling | blocked | quality_delta | macro_delta | missing_backends |", "|---|---|---:|---|---:|---:|---:|---|"])
+    lines.extend(
+        [
+            "",
+            "## Head-to-Head Run Registry",
+            "",
+            "| type | label | created_at | queries | folds | sampling | blocked | quality_delta | macro_delta | missing_backends |",
+            "|---|---|---|---:|---:|---|---:|---:|---:|---|",
+        ]
+    )
     for row in dashboard.get("run_registry", []):
         lines.append(
-            f"| {row.get('label', '')} | {row.get('created_at', '')} | {row.get('query_count', 0)} | {row.get('sampling_strategy', '')} | "
+            f"| {row.get('artifact_type', '')} | {row.get('label', '')} | {row.get('created_at', '')} | "
+            f"{row.get('query_count', 0)} | {row.get('fold_count', 0)} | {row.get('sampling_strategy', '')} | "
             f"{'yes' if row.get('blocked_by_preflight') else 'no'} | {row.get('quality_delta', 0.0):+.4f} | "
             f"{row.get('macro_quality_delta', 0.0):+.4f} | {','.join(row.get('missing_backends', [])) or '-'} |"
         )
@@ -240,9 +263,11 @@ def write_html(dashboard: dict[str, Any], output_path: Path) -> None:
     for row in dashboard.get("run_registry", []):
         run_rows.append(
             "<tr>"
+            f"<td>{html.escape(str(row.get('artifact_type', '')))}</td>"
             f"<td>{html.escape(str(row.get('label', '')))}</td>"
             f"<td>{html.escape(str(row.get('created_at', '')))}</td>"
             f"<td>{int(row.get('query_count', 0) or 0)}</td>"
+            f"<td>{int(row.get('fold_count', 0) or 0)}</td>"
             f"<td>{html.escape(str(row.get('sampling_strategy', '')))}</td>"
             f"<td>{'yes' if row.get('blocked_by_preflight') else 'no'}</td>"
             f"<td>{float(row.get('quality_delta', 0.0) or 0.0):+.4f}</td>"
@@ -444,7 +469,7 @@ def write_html(dashboard: dict[str, Any], output_path: Path) -> None:
       <div class="panel span-12">
         <h2>Head-to-Head Run Registry</h2>
         <table>
-          <thead><tr><th>Label</th><th>Created</th><th>Queries</th><th>Sampling</th><th>Blocked</th><th>Quality</th><th>Macro</th><th>Missing Backends</th></tr></thead>
+          <thead><tr><th>Type</th><th>Label</th><th>Created</th><th>Queries</th><th>Folds</th><th>Sampling</th><th>Blocked</th><th>Quality</th><th>Macro</th><th>Missing Backends</th></tr></thead>
           <tbody>{''.join(run_rows)}</tbody>
         </table>
       </div>

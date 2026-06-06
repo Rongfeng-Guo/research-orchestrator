@@ -12,6 +12,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Made research-reporting tests independent of ignored local `outputs/` artifacts by generating minimal fixtures during test setup.
 - Allowed research brief rendering to fall back to indexed summary metadata when referenced artifact JSON files are unavailable.
 - Indexed `policy_head2head_cv*/cv_summary.json` cross-fold reports in the research output index.
+- Surfaced indexed cross-fold head-to-head reports in the research dashboard run registry.
 
 ### Added
 

@@ -40,6 +40,19 @@ def test_build_dashboard_surfaces_blockers_and_leaderboard() -> None:
                 "quality_delta": 0.0,
                 "macro_quality_delta": 0.0,
                 "domains": ["科技", "医疗", "金融"],
+            },
+            {
+                "artifact_type": "policy_head2head_cv",
+                "label": "policy_head2head_cv_fast_probe8_live",
+                "created_at": "2026-05-23T11:00:00",
+                "query_count": 8,
+                "fold_count": 4,
+                "source_label": "file:data/queries/fast_probe8.jsonl",
+                "blocked_by_preflight": False,
+                "missing_backends": [],
+                "quality_delta": 0.005,
+                "macro_quality_delta": 0.004,
+                "domains": ["科技", "医疗", "金融", "能源"],
             }
         ]
     }
@@ -86,6 +99,9 @@ def test_build_dashboard_surfaces_blockers_and_leaderboard() -> None:
     assert dashboard["benchmark_domain_table"][0]["domain"] == "科技"
     assert dashboard["benchmark_domain_table"][-1]["domain"] == "传媒"
     assert dashboard["run_registry"][0]["sampling_strategy"] == "balanced_domains"
+    assert dashboard["run_registry"][1]["artifact_type"] == "policy_head2head_cv"
+    assert dashboard["run_registry"][1]["fold_count"] == 4
+    assert dashboard["run_registry"][1]["sampling_strategy"] == "cross_fold"
 
 
 def test_write_html_renders_major_sections(tmp_path: Path) -> None:
@@ -120,14 +136,28 @@ def test_write_html_renders_major_sections(tmp_path: Path) -> None:
         ],
         "run_registry": [
             {
+                "artifact_type": "policy_head2head",
                 "label": "policy_head2head_natural_train_v1_balanced",
                 "created_at": "2026-05-31T16:53:21",
                 "query_count": 5,
+                "fold_count": 0,
                 "sampling_strategy": "balanced_domains",
                 "blocked_by_preflight": True,
                 "quality_delta": 0.0,
                 "macro_quality_delta": 0.0,
                 "missing_backends": ["openai"],
+            },
+            {
+                "artifact_type": "policy_head2head_cv",
+                "label": "policy_head2head_cv_fast_probe8_live",
+                "created_at": "2026-05-23T11:00:00",
+                "query_count": 8,
+                "fold_count": 4,
+                "sampling_strategy": "cross_fold",
+                "blocked_by_preflight": False,
+                "quality_delta": 0.005,
+                "macro_quality_delta": 0.004,
+                "missing_backends": [],
             }
         ],
         "latest_run_domains": ["科技", "医疗"],
@@ -142,4 +172,6 @@ def test_write_html_renders_major_sections(tmp_path: Path) -> None:
     assert "<title>Research Dashboard</title>" in rendered
     assert "Policy Artifact Leaderboard" in rendered
     assert "balanced_domains" in rendered
+    assert "policy_head2head_cv_fast_probe8_live" in rendered
+    assert "cross_fold" in rendered
     assert "openai" in rendered
