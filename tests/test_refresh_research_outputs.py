@@ -22,6 +22,11 @@ def test_refresh_research_outputs_rebuilds_full_reporting_chain(
     assert manifest["headline"]["recommended_policy_artifact"] == "search_policy_20260515_natural_train_v1.json"
     assert manifest["headline"]["head2head_blocked_by_preflight"] is True
     assert manifest["headline"]["missing_backends"] == ["openai"]
+    assert manifest["headline"]["cross_fold_label"] == "policy_head2head_cv_fast_probe8_live"
+    assert manifest["headline"]["cross_fold_count"] == 4
+    assert manifest["headline"]["cross_fold_query_count"] == 8
+    assert manifest["headline"]["cross_fold_quality_delta"] == 0.055
+    assert manifest["headline"]["cross_fold_macro_quality_delta"] == 0.05
     assert len(manifest["generated"]) == 4
     assert Path(manifest["source_outputs_dir"]) == sample_research_outputs
 

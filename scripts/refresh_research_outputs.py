@@ -104,6 +104,13 @@ def refresh_research_outputs(
             "recommended_policy_eval_accuracy": brief_payload.get("recommended_policy_eval_accuracy"),
             "head2head_blocked_by_preflight": brief_payload.get("blocked_by_preflight"),
             "missing_backends": brief_payload.get("missing_backends", []),
+            "cross_fold_label": brief_payload.get("cross_fold_label"),
+            "cross_fold_query_count": brief_payload.get("cross_fold_query_count", 0),
+            "cross_fold_count": brief_payload.get("cross_fold_count", 0),
+            "cross_fold_quality_delta": brief_payload.get("cross_fold_quality_delta", 0.0),
+            "cross_fold_macro_quality_delta": brief_payload.get("cross_fold_macro_quality_delta", 0.0),
+            "cross_fold_blocked_by_preflight": brief_payload.get("cross_fold_blocked_by_preflight"),
+            "cross_fold_missing_backends": brief_payload.get("cross_fold_missing_backends", []),
         },
     }
     manifest_json = outputs_dir / "research_refresh_manifest.json"

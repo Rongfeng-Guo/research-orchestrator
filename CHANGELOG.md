@@ -14,6 +14,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Indexed `policy_head2head_cv*/cv_summary.json` cross-fold reports in the research output index.
 - Surfaced indexed cross-fold head-to-head reports in the research dashboard run registry.
 - Added cross-fold head-to-head summary fields and Markdown evidence to the research brief.
+- Exposed cross-fold head-to-head summary fields in the one-shot research refresh manifest headline.
 
 ### Added
 
