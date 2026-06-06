@@ -19,6 +19,16 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
         ("scripts/run_eval.py", "Research Orchestrator 标准评测脚本"),
         ("scripts/run_benchmark.py", "Research Orchestrator Benchmark"),
         ("scripts/run_ablation.py", "Research Orchestrator 消融实验脚本"),
+        ("scripts/build_search_cache.py", "Build offline search-cache dataset from Research Orchestrator runs"),
+        ("scripts/audit_research_readiness.py", "Audit repository-level research readiness signals"),
+        ("scripts/index_research_outputs.py", "Index research-facing output artifacts"),
+        ("scripts/render_research_brief.py", "Render a concise research brief from indexed outputs"),
+        ("scripts/render_research_dashboard.py", "Render a research dashboard from indexed outputs"),
+        ("scripts/refresh_research_outputs.py", "Refresh repository-level research reporting artifacts"),
+        (
+            "scripts/run_policy_head2head_cv.py",
+            "Run query-level cross-fold policy preparation and optional head-to-head",
+        ),
     ],
 )
 def test_cli_help_is_clean(script_path: str, expected_text: str) -> None:

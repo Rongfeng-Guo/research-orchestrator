@@ -16,6 +16,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Added cross-fold head-to-head summary fields and Markdown evidence to the research brief.
 - Exposed cross-fold head-to-head summary fields in the one-shot research refresh manifest headline.
 - Added cross-fold headline metrics to the research dashboard JSON, Markdown, and HTML outputs.
+- Added CLI smoke coverage for research reporting and cross-fold policy entry points.
 
 ### Added
 

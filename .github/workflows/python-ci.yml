@@ -43,6 +43,12 @@ jobs:
           python scripts/run_repl.py --help
           python scripts/run_benchmark.py --help
           python scripts/run_ablation.py --help
+          python scripts/audit_research_readiness.py --help
+          python scripts/index_research_outputs.py --help
+          python scripts/render_research_brief.py --help
+          python scripts/render_research_dashboard.py --help
+          python scripts/refresh_research_outputs.py --help
+          python scripts/run_policy_head2head_cv.py --help
 
       - name: Run test suite
         run: pytest -q
