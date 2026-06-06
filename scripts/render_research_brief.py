@@ -37,8 +37,16 @@ def _latest_head2head(index_payload: dict[str, Any]) -> dict[str, Any] | None:
     return None
 
 
+def _latest_cross_fold(index_payload: dict[str, Any]) -> dict[str, Any] | None:
+    for item in index_payload.get("artifacts", []):
+        if item.get("artifact_type") == "policy_head2head_cv":
+            return item
+    return None
+
+
 def build_brief(index_payload: dict[str, Any]) -> dict[str, Any]:
     latest = _latest_head2head(index_payload)
+    latest_cv = _latest_cross_fold(index_payload)
     audit_entry = next((item for item in index_payload.get("artifacts", []) if item.get("artifact_type") == "research_audit"), None)
     audit_payload = _load_json_if_present(Path(audit_entry["path_json"])) if audit_entry and audit_entry.get("path_json") else {}
     latest_payload = _load_json_if_present(Path(latest["path_json"])) if latest and latest.get("path_json") else {}
@@ -77,6 +85,14 @@ def build_brief(index_payload: dict[str, Any]) -> dict[str, Any]:
         "macro_quality_delta": latest.get("macro_quality_delta", 0.0) if latest else 0.0,
         "blocked_by_preflight": latest.get("blocked_by_preflight", False) if latest else False,
         "missing_backends": latest.get("missing_backends", []) if latest else [],
+        "cross_fold_label": latest_cv.get("label") if latest_cv else None,
+        "cross_fold_query_count": latest_cv.get("query_count", 0) if latest_cv else 0,
+        "cross_fold_count": latest_cv.get("fold_count", 0) if latest_cv else 0,
+        "cross_fold_quality_delta": latest_cv.get("quality_delta", 0.0) if latest_cv else 0.0,
+        "cross_fold_macro_quality_delta": latest_cv.get("macro_quality_delta", 0.0) if latest_cv else 0.0,
+        "cross_fold_blocked_by_preflight": latest_cv.get("blocked_by_preflight", False) if latest_cv else False,
+        "cross_fold_missing_backends": latest_cv.get("missing_backends", []) if latest_cv else [],
+        "cross_fold_domains": latest_cv.get("domains", []) if latest_cv else [],
         "heuristic_ready": heuristic_preflight.get("is_ready", True),
         "learned_ready": learned_preflight.get("is_ready", True),
         "key_findings": findings,
@@ -108,6 +124,15 @@ def write_markdown(brief: dict[str, Any], output_path: Path) -> None:
     lines.append(
         f"- Latest balanced head-to-head sample covers {brief.get('head2head_query_count', 0)} queries from domains: `{brief.get('head2head_domains', [])}`."
     )
+    if brief.get("cross_fold_label"):
+        if brief.get("cross_fold_blocked_by_preflight"):
+            lines.append(
+                f"- Latest cross-fold run `{brief.get('cross_fold_label')}` is blocked by missing backend configuration: `{', '.join(brief.get('cross_fold_missing_backends', []))}`."
+            )
+        else:
+            lines.append(
+                f"- Latest cross-fold run `{brief.get('cross_fold_label')}` covers {brief.get('cross_fold_query_count', 0)} queries across {brief.get('cross_fold_count', 0)} folds with quality_delta={brief.get('cross_fold_quality_delta', 0.0):+.4f} and macro_quality_delta={brief.get('cross_fold_macro_quality_delta', 0.0):+.4f}."
+            )
     lines.append(
         f"- Research readiness audit currently recommends `{brief.get('recommended_policy_artifact', 'N/A')}` as the strongest learned policy candidate."
     )
@@ -115,6 +140,10 @@ def write_markdown(brief: dict[str, Any], output_path: Path) -> None:
     lines.extend(["", "## Evidence", ""])
     for finding in brief.get("key_findings", []):
         lines.append(f"- {finding}")
+    if brief.get("cross_fold_label"):
+        lines.append(
+            f"- Cross-fold evidence: `{brief.get('cross_fold_label')}` spans domains `{brief.get('cross_fold_domains', [])}`."
+        )
 
     lines.extend(["", "## Next Actions", ""])
     if brief.get("blocked_by_preflight"):
