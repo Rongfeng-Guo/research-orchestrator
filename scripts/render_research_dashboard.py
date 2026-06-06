@@ -157,6 +157,13 @@ def build_dashboard(
             "latest_head2head_query_count": int(brief_payload.get("head2head_query_count", 0) or 0),
             "latest_quality_delta": float(brief_payload.get("quality_delta", 0.0) or 0.0),
             "latest_macro_quality_delta": float(brief_payload.get("macro_quality_delta", 0.0) or 0.0),
+            "latest_cross_fold_label": brief_payload.get("cross_fold_label"),
+            "latest_cross_fold_query_count": int(brief_payload.get("cross_fold_query_count", 0) or 0),
+            "latest_cross_fold_count": int(brief_payload.get("cross_fold_count", 0) or 0),
+            "latest_cross_fold_quality_delta": float(brief_payload.get("cross_fold_quality_delta", 0.0) or 0.0),
+            "latest_cross_fold_macro_quality_delta": float(
+                brief_payload.get("cross_fold_macro_quality_delta", 0.0) or 0.0
+            ),
         },
         "blockers": {
             "blocked_by_preflight": blocked,
@@ -183,6 +190,8 @@ def write_markdown(dashboard: dict[str, Any], output_path: Path) -> None:
         f"- Recommended policy: `{headline.get('recommended_policy_artifact', 'N/A')}` (eval_accuracy={headline.get('recommended_policy_eval_accuracy', 'N/A')})",
         f"- Latest head-to-head: `{headline.get('latest_head2head_label', 'N/A')}` with {headline.get('latest_head2head_query_count', 0)} queries",
         f"- Latest deltas: quality={headline.get('latest_quality_delta', 0.0):+.4f}, macro={headline.get('latest_macro_quality_delta', 0.0):+.4f}",
+        f"- Latest cross-fold: `{headline.get('latest_cross_fold_label', 'N/A')}` with {headline.get('latest_cross_fold_query_count', 0)} queries / {headline.get('latest_cross_fold_count', 0)} folds",
+        f"- Cross-fold deltas: quality={headline.get('latest_cross_fold_quality_delta', 0.0):+.4f}, macro={headline.get('latest_cross_fold_macro_quality_delta', 0.0):+.4f}",
         "",
         "## Blockers",
         "",
@@ -439,6 +448,11 @@ def write_html(dashboard: dict[str, Any], output_path: Path) -> None:
             <div class="kpi-label">Latest Sample</div>
             <div class="kpi-value">{int(headline.get('latest_head2head_query_count', 0) or 0)}</div>
             <div class="kpi-sub"><code>{html.escape(str(headline.get('latest_head2head_label', 'N/A')))}</code></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Cross-Fold</div>
+            <div class="kpi-value">{int(headline.get('latest_cross_fold_count', 0) or 0)}</div>
+            <div class="kpi-sub">{int(headline.get('latest_cross_fold_query_count', 0) or 0)} queries, delta {float(headline.get('latest_cross_fold_quality_delta', 0.0) or 0.0):+.4f}</div>
           </div>
         </div>
       </div>

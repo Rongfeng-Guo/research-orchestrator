@@ -15,6 +15,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Surfaced indexed cross-fold head-to-head reports in the research dashboard run registry.
 - Added cross-fold head-to-head summary fields and Markdown evidence to the research brief.
 - Exposed cross-fold head-to-head summary fields in the one-shot research refresh manifest headline.
+- Added cross-fold headline metrics to the research dashboard JSON, Markdown, and HTML outputs.
 
 ### Added
 

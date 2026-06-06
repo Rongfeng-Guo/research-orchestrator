@@ -8,7 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.render_research_dashboard import build_dashboard, write_html  # noqa: E402
+from scripts.render_research_dashboard import build_dashboard, write_html, write_markdown  # noqa: E402
 
 
 def test_build_dashboard_surfaces_blockers_and_leaderboard() -> None:
@@ -25,6 +25,11 @@ def test_build_dashboard_surfaces_blockers_and_leaderboard() -> None:
         "macro_quality_delta": 0.0,
         "blocked_by_preflight": True,
         "missing_backends": ["openai"],
+        "cross_fold_label": "policy_head2head_cv_fast_probe8_live",
+        "cross_fold_query_count": 8,
+        "cross_fold_count": 4,
+        "cross_fold_quality_delta": 0.005,
+        "cross_fold_macro_quality_delta": 0.004,
         "key_findings": ["finding-a"],
     }
     index_payload = {
@@ -102,6 +107,9 @@ def test_build_dashboard_surfaces_blockers_and_leaderboard() -> None:
     assert dashboard["run_registry"][1]["artifact_type"] == "policy_head2head_cv"
     assert dashboard["run_registry"][1]["fold_count"] == 4
     assert dashboard["run_registry"][1]["sampling_strategy"] == "cross_fold"
+    assert dashboard["headline_metrics"]["latest_cross_fold_label"] == "policy_head2head_cv_fast_probe8_live"
+    assert dashboard["headline_metrics"]["latest_cross_fold_count"] == 4
+    assert dashboard["headline_metrics"]["latest_cross_fold_quality_delta"] == 0.005
 
 
 def test_write_html_renders_major_sections(tmp_path: Path) -> None:
@@ -117,6 +125,11 @@ def test_write_html_renders_major_sections(tmp_path: Path) -> None:
             "latest_head2head_query_count": 5,
             "latest_quality_delta": 0.0,
             "latest_macro_quality_delta": 0.0,
+            "latest_cross_fold_label": "policy_head2head_cv_fast_probe8_live",
+            "latest_cross_fold_query_count": 8,
+            "latest_cross_fold_count": 4,
+            "latest_cross_fold_quality_delta": 0.005,
+            "latest_cross_fold_macro_quality_delta": 0.004,
         },
         "blockers": {
             "blocked_by_preflight": True,
@@ -175,3 +188,39 @@ def test_write_html_renders_major_sections(tmp_path: Path) -> None:
     assert "policy_head2head_cv_fast_probe8_live" in rendered
     assert "cross_fold" in rendered
     assert "openai" in rendered
+
+
+def test_write_markdown_includes_cross_fold_headline(tmp_path: Path) -> None:
+    dashboard = {
+        "created_at": "2026-05-31T17:20:00",
+        "headline_metrics": {
+            "benchmark_size": 35,
+            "benchmark_domain_count": 11,
+            "benchmark_domain_imbalance_ratio": 8.0,
+            "recommended_policy_artifact": "search_policy_20260515_natural_train_v1.json",
+            "recommended_policy_eval_accuracy": 0.9516,
+            "latest_head2head_label": "policy_head2head_natural_train_v1_balanced",
+            "latest_head2head_query_count": 5,
+            "latest_quality_delta": 0.0,
+            "latest_macro_quality_delta": 0.0,
+            "latest_cross_fold_label": "policy_head2head_cv_fast_probe8_live",
+            "latest_cross_fold_query_count": 8,
+            "latest_cross_fold_count": 4,
+            "latest_cross_fold_quality_delta": 0.005,
+            "latest_cross_fold_macro_quality_delta": 0.004,
+        },
+        "blockers": {"summary": "No blockers recorded."},
+        "benchmark_domain_table": [],
+        "policy_leaderboard": [],
+        "run_registry": [],
+        "key_findings": [],
+        "next_actions": [],
+    }
+    output_path = tmp_path / "research_dashboard.md"
+
+    write_markdown(dashboard, output_path)
+    markdown = output_path.read_text(encoding="utf-8")
+
+    assert "Latest cross-fold" in markdown
+    assert "policy_head2head_cv_fast_probe8_live" in markdown
+    assert "Cross-fold deltas: quality=+0.0050, macro=+0.0040" in markdown
