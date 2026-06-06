@@ -18,6 +18,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Added cross-fold headline metrics to the research dashboard JSON, Markdown, and HTML outputs.
 - Added CLI smoke coverage for research reporting and cross-fold policy entry points.
 - Documented the current benchmark, policy head-to-head, cross-fold, and research reporting workflows.
+- Expanded CLI smoke coverage to every public `argparse` script and guarded CI coverage against drift.
 
 ### Added
 

@@ -6,9 +6,8 @@
 ## Validation
 
 - [ ] `pytest -q`
-- [ ] `python scripts/run_single.py --help`
-- [ ] `python scripts/run_eval.py --help`
-- [ ] `python scripts/build_search_cache.py --help`
+- [ ] `python -m compileall src scripts evaluation`
+- [ ] `pytest tests/test_cli_help_clean.py -q`
 
 ## Risks
 

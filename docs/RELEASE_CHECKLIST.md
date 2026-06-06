@@ -12,15 +12,14 @@ Use this checklist before tagging or announcing a new repository release.
 ## Validation
 
 - Run `pytest -q`
-- Run `python scripts/run_single.py --help`
-- Run `python scripts/run_eval.py --help`
-- Run `python scripts/build_search_cache.py --help`
-- Optionally run `python scripts/run_repl.py --help`
-- Optionally run `python scripts/run_benchmark.py --help`
+- Run `python -m compileall src scripts evaluation`
+- Run `pytest tests/test_cli_help_clean.py -q`
+- Confirm the CLI smoke list in `.github/workflows/python-ci.yml` covers all public `argparse` entry points in `scripts/`
 
 ## Packaging
 
 - Confirm `python -m build` succeeds in a clean release environment
+- Confirm `python -m pip wheel --no-deps . --wheel-dir <tmp_wheel_dir>` succeeds
 - Confirm public repository URLs and author metadata are correct in `pyproject.toml`
 - Confirm `.gitignore` excludes local outputs, secrets, datasets, and checkpoints
 
