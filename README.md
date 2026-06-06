@@ -62,7 +62,7 @@
 ## Repository Layout
 
 ```text
-deepresearch-agent-main/
+research-orchestrator/
 ├── configs/         # YAML 配置
 ├── src/             # 核心源码
 │   ├── orchestrator/
@@ -132,6 +132,15 @@ python scripts/run_eval.py \
   --config configs/aliyun_smoke.yaml
 ```
 
+### 5. Refresh Research Reporting Artifacts
+
+```bash
+python scripts/refresh_research_outputs.py \
+  --outputs_dir outputs
+```
+
+This rebuilds the repository-level `research_audit -> research_index -> research_brief -> research_dashboard` chain, including indexed head-to-head and cross-fold policy summaries when those outputs are present.
+
 ## Recommended Reading Order
 
 Documentation:
@@ -162,6 +171,7 @@ Included:
 - evidence-readiness 相关评测接口和审计流程
 - source quality / citation hygiene 的分析脚本和实验产物
 - learned policy、heuristic policy 与运行时 policy 接入代码
+- one-command research reporting refresh for audit, index, brief, dashboard, and manifest artifacts
 
 ## Implementation Notes
 
