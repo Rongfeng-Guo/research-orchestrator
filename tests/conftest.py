@@ -10,8 +10,10 @@ def write_sample_research_outputs(outputs_dir: Path) -> Path:
     """Create a minimal research-output tree for reporting tests."""
     audit_dir = outputs_dir / "research_audit"
     head2head_dir = outputs_dir / "policy_head2head_natural_train_v1_balanced"
+    cv_dir = outputs_dir / "policy_head2head_cv_fast_probe8_live"
     audit_dir.mkdir(parents=True, exist_ok=True)
     head2head_dir.mkdir(parents=True, exist_ok=True)
+    cv_dir.mkdir(parents=True, exist_ok=True)
 
     audit_payload = {
         "created_at": "2026-05-31T16:53:21",
@@ -95,6 +97,47 @@ def write_sample_research_outputs(outputs_dir: Path) -> Path:
         encoding="utf-8",
     )
     (head2head_dir / "head2head_20260531_165321.md").write_text("# Head-to-Head\n", encoding="utf-8")
+
+    cv_payload = {
+        "created_at": "2026-05-23T11:00:00",
+        "config_path": "configs/real_evidence_fast.yaml",
+        "source_label": "file:data/queries/fast_probe8.jsonl",
+        "fold_count": 4,
+        "query_count": 8,
+        "folds": [
+            {
+                "summary": {
+                    "train": {"domain_distribution": {"technology": 1, "medicine": 1}},
+                    "heldout": {"domain_distribution": {"finance": 1}, "query_ids": ["q1", "q2"]},
+                }
+            }
+        ],
+        "aggregate_head2head": {
+            "runs": [
+                {
+                    "mode": "heuristic",
+                    "summary": {
+                        "avg_composite_score": 0.5,
+                        "domain_macro_avg_composite_score": 0.48,
+                    },
+                    "preflight": {"is_ready": True, "missing_backends": []},
+                },
+                {
+                    "mode": "learned",
+                    "summary": {
+                        "avg_composite_score": 0.555,
+                        "domain_macro_avg_composite_score": 0.53,
+                    },
+                    "preflight": {"is_ready": True, "missing_backends": []},
+                },
+            ]
+        },
+    }
+    (cv_dir / "cv_summary.json").write_text(
+        json.dumps(cv_payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (cv_dir / "cv_summary.md").write_text("# Policy Head-to-Head Cross-Fold Report\n", encoding="utf-8")
     return outputs_dir
 
 
