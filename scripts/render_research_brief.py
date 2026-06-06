@@ -24,6 +24,12 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _load_json_if_present(path: Path | None) -> dict[str, Any]:
+    if path is None or not path.exists():
+        return {}
+    return _load_json(path)
+
+
 def _latest_head2head(index_payload: dict[str, Any]) -> dict[str, Any] | None:
     for item in index_payload.get("artifacts", []):
         if item.get("artifact_type") == "policy_head2head":
@@ -34,8 +40,8 @@ def _latest_head2head(index_payload: dict[str, Any]) -> dict[str, Any] | None:
 def build_brief(index_payload: dict[str, Any]) -> dict[str, Any]:
     latest = _latest_head2head(index_payload)
     audit_entry = next((item for item in index_payload.get("artifacts", []) if item.get("artifact_type") == "research_audit"), None)
-    audit_payload = _load_json(Path(audit_entry["path_json"])) if audit_entry else {}
-    latest_payload = _load_json(Path(latest["path_json"])) if latest else {}
+    audit_payload = _load_json_if_present(Path(audit_entry["path_json"])) if audit_entry and audit_entry.get("path_json") else {}
+    latest_payload = _load_json_if_present(Path(latest["path_json"])) if latest and latest.get("path_json") else {}
 
     benchmark = audit_payload.get("benchmark", {}) if isinstance(audit_payload.get("benchmark"), dict) else {}
     strongest = (

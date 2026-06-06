@@ -29,17 +29,19 @@ dependencies = [
     "openai>=1.0",
     "transformers>=4.40",
     "torch>=2.0",
-    "numpy",
-    "aiohttp",
-    "pyyaml",
+    "numpy>=1.24",
+    "aiohttp>=3.8",
+    "pyyaml>=6.0",
     "python-dotenv>=1.0",  # 多后端 .env 配置支持
-    "sentence-transformers",
-    "networkx",           # 用于 TextRank 等图算法
-    "scikit-learn",
-    "tqdm",
-    "datasets",
-    "pandas",
-    "matplotlib",
+    "langsmith>=0.1.0",   # Agent 流程追踪与可观测性
+    "sentence-transformers>=2.5",
+    "networkx>=3.0",      # 用于 TextRank 等图算法
+    "scikit-learn>=1.3",
+    "tqdm>=4.65",
+    "datasets>=2.14",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "beautifulsoup4>=4.12",  # BrowserTool HTML 正文提取
     # vLLM 推理服务（可选，本地部署时安装）
     # "vllm",
     # PEFT / LoRA 微调（自进化模块需要）

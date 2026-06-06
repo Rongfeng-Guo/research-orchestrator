@@ -11,8 +11,8 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts.index_research_outputs import build_index  # noqa: E402
 
 
-def test_build_index_finds_research_artifacts() -> None:
-    payload = build_index(PROJECT_ROOT / "outputs")
+def test_build_index_finds_research_artifacts(sample_research_outputs: Path) -> None:
+    payload = build_index(sample_research_outputs)
 
     assert payload["artifact_count"] >= 2
     artifact_types = {item["artifact_type"] for item in payload["artifacts"]}

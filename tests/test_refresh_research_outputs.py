@@ -11,16 +11,19 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts.refresh_research_outputs import refresh_research_outputs  # noqa: E402
 
 
-def test_refresh_research_outputs_rebuilds_full_reporting_chain(tmp_path: Path) -> None:
+def test_refresh_research_outputs_rebuilds_full_reporting_chain(
+    tmp_path: Path,
+    sample_research_outputs: Path,
+) -> None:
     outputs_dir = tmp_path / "outputs"
 
-    manifest = refresh_research_outputs(PROJECT_ROOT, outputs_dir, source_outputs_dir=PROJECT_ROOT / "outputs")
+    manifest = refresh_research_outputs(PROJECT_ROOT, outputs_dir, source_outputs_dir=sample_research_outputs)
 
     assert manifest["headline"]["recommended_policy_artifact"] == "search_policy_20260515_natural_train_v1.json"
     assert manifest["headline"]["head2head_blocked_by_preflight"] is True
     assert manifest["headline"]["missing_backends"] == ["openai"]
     assert len(manifest["generated"]) == 4
-    assert manifest["source_outputs_dir"].endswith("research-orchestrator\\outputs")
+    assert Path(manifest["source_outputs_dir"]) == sample_research_outputs
 
     generated_paths = [
         outputs_dir / "research_audit" / "research_readiness_audit.json",

@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and versioning in this repository currently follows a lightweight semantic versioning style.
 
+## [Unreleased]
+
+### Fixed
+
+- Synced package runtime dependencies with the active requirements file so wheel/source installs include tracing and HTML extraction dependencies.
+- Made research-reporting tests independent of ignored local `outputs/` artifacts by generating minimal fixtures during test setup.
+- Allowed research brief rendering to fall back to indexed summary metadata when referenced artifact JSON files are unavailable.
+
+### Added
+
+- Added the MIT license text referenced by project metadata and documentation.
+
 ## [0.1.1] - 2026-05-31
 
 ### Added
