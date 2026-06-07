@@ -202,3 +202,8 @@ pytest tests/test_run_eval_hotpotqa.py -q
 ## License
 
 MIT
+
+## Citation
+
+If Research Orchestrator helps your agentic research workflow or evaluation
+setup, cite the project metadata in `CITATION.cff`.
