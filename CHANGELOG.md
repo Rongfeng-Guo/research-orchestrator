@@ -19,6 +19,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Added CLI smoke coverage for research reporting and cross-fold policy entry points.
 - Documented the current benchmark, policy head-to-head, cross-fold, and research reporting workflows.
 - Expanded CLI smoke coverage to every public `argparse` script and guarded CI coverage against drift.
+- Verified wheel console script metadata in packaging CI and pinned the expected pyproject entry point registry in tests.
 
 ### Added
 

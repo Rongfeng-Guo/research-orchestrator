@@ -8,6 +8,15 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+EXPECTED_CONSOLE_SCRIPTS = {
+    "run-research": "scripts.run_single:main",
+    "run-eval": "scripts.run_eval:main",
+    "run-ablation": "scripts.run_ablation:main",
+    "run-benchmark": "scripts.run_benchmark:main",
+    "run-judge": "scripts.run_judge:main",
+    "run-evolution": "scripts.run_evolution:main",
+}
+
 
 def _dependency_name(requirement: str) -> str:
     match = re.match(r"[A-Za-z0-9_.-]+", requirement.strip())
@@ -47,6 +56,12 @@ def test_pyproject_runtime_dependencies_cover_active_requirements_txt() -> None:
     pyproject_names = {_dependency_name(item) for item in pyproject["project"]["dependencies"]}
 
     assert _active_requirements_txt_names() <= pyproject_names
+
+
+def test_console_script_registry_is_stable() -> None:
+    pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert pyproject["project"]["scripts"] == EXPECTED_CONSOLE_SCRIPTS
 
 
 def test_console_script_targets_are_importable() -> None:

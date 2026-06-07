@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - ".github/workflows/packaging-check.yml"
       - "pyproject.toml"
       - "requirements.txt"
       - "__init__.py"
@@ -12,6 +13,7 @@ on:
       - "src/**"
   pull_request:
     paths:
+      - ".github/workflows/packaging-check.yml"
       - "pyproject.toml"
       - "requirements.txt"
       - "__init__.py"
@@ -40,3 +42,27 @@ jobs:
 
       - name: Build package artifacts
         run: python -m build
+
+      - name: Verify wheel console script metadata
+        run: |
+          python -m pip install --no-deps --force-reinstall dist/*.whl
+          python - <<'PY'
+          from importlib.metadata import entry_points
+
+          expected = {
+              "run-research": "scripts.run_single:main",
+              "run-eval": "scripts.run_eval:main",
+              "run-ablation": "scripts.run_ablation:main",
+              "run-benchmark": "scripts.run_benchmark:main",
+              "run-judge": "scripts.run_judge:main",
+              "run-evolution": "scripts.run_evolution:main",
+          }
+          installed = {ep.name: ep.value for ep in entry_points(group="console_scripts")}
+          missing_or_wrong = {
+              name: {"expected": target, "actual": installed.get(name)}
+              for name, target in expected.items()
+              if installed.get(name) != target
+          }
+          if missing_or_wrong:
+              raise SystemExit(f"Console script metadata mismatch: {missing_or_wrong}")
+          PY
