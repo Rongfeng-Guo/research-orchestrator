@@ -101,6 +101,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+Optional extras are installed from project metadata, for example `pip install -e ".[dev]"`.
+
 Environment templates:
 
 - `.env.template`

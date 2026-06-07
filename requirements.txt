@@ -3,10 +3,10 @@
 # =============================================================================
 # 安装方式：
 #   pip install -r requirements.txt              # 仅核心依赖
-#   pip install -r requirements.txt[train]       # 核心 + 训练依赖
-#   pip install -r requirements.txt[serve]       # 核心 + vLLM 推理服务
-#   pip install -r requirements.txt[dev]         # 核心 + 开发工具
-#   pip install -r requirements.txt[all]         # 全部依赖
+#   pip install -e ".[train]"                    # 核心 + 训练依赖
+#   pip install -e ".[serve]"                    # 核心 + vLLM 推理服务
+#   pip install -e ".[dev]"                      # 核心 + 开发工具
+#   pip install -e ".[all]"                      # 全部依赖
 #
 # 注意：
 #   1. verl 框架为项目一/项目二本地依赖，不在 PyPI 上，
@@ -67,7 +67,7 @@ matplotlib>=3.7
 
 # ---------------------------------------------------------------------------
 # 可选依赖：自进化训练（M6 GRPO 在线训练）
-# 安装命令：pip install -r requirements.txt[train]
+# 安装命令：pip install -e ".[train]"
 # ---------------------------------------------------------------------------
 # peft>=0.11.0          # LoRA 微调
 # accelerate>=0.30.0    # HuggingFace 分布式训练
@@ -76,7 +76,7 @@ matplotlib>=3.7
 
 # ---------------------------------------------------------------------------
 # 可选依赖：vLLM 推理服务（本地部署大模型）
-# 安装命令：pip install -r requirements.txt[serve]
+# 安装命令：pip install -e ".[serve]"
 # ---------------------------------------------------------------------------
 # vllm>=0.4.0           # 高性能 LLM 推理引擎
 
@@ -97,7 +97,7 @@ brotli>=1.1             # Brotli/br 压缩响应解码
 
 # ---------------------------------------------------------------------------
 # 开发依赖（代码质量、测试）
-# 安装命令：pip install -r requirements.txt[dev]
+# 安装命令：pip install -e ".[dev]"
 # ---------------------------------------------------------------------------
 # pytest>=7.0
 # pytest-asyncio

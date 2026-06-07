@@ -24,6 +24,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Updated package license metadata to the SPDX expression format expected by current setuptools builds.
 - Replaced remaining legacy source-level project identifiers with the public `Research Orchestrator` identity.
 - Extended packaging CI to verify installed wheel license metadata and bundled configuration resources.
+- Corrected optional dependency installation examples to use project extras instead of invalid requirements-file extras.
 
 ### Added
 
