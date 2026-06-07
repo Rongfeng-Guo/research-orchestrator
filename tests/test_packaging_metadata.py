@@ -17,6 +17,14 @@ EXPECTED_CONSOLE_SCRIPTS = {
     "run-evolution": "scripts.run_evolution:main",
 }
 
+EXPECTED_CONFIG_PACKAGES = {
+    "configs",
+    "configs.agents",
+    "configs.evolution",
+    "configs.planner",
+    "configs.tools",
+}
+
 
 def _dependency_name(requirement: str) -> str:
     match = re.match(r"[A-Za-z0-9_.-]+", requirement.strip())
@@ -51,6 +59,15 @@ def test_mit_license_file_is_present() -> None:
     assert "Copyright (c) 2026 Rongfeng Guo" in license_text
 
 
+def test_pyproject_license_metadata_uses_spdx_expression() -> None:
+    pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = pyproject["project"]
+
+    assert pyproject["build-system"]["requires"][0] == "setuptools>=77.0"
+    assert project["license"] == "MIT"
+    assert "License :: OSI Approved :: MIT License" not in project["classifiers"]
+
+
 def test_pyproject_runtime_dependencies_cover_active_requirements_txt() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     pyproject_names = {_dependency_name(item) for item in pyproject["project"]["dependencies"]}
@@ -62,6 +79,16 @@ def test_console_script_registry_is_stable() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
     assert pyproject["project"]["scripts"] == EXPECTED_CONSOLE_SCRIPTS
+
+
+def test_config_packages_are_explicitly_discoverable() -> None:
+    pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    package_include = set(pyproject["tool"]["setuptools"]["packages"]["find"]["include"])
+
+    assert "configs*" in package_include
+    for package_name in EXPECTED_CONFIG_PACKAGES:
+        package_path = PROJECT_ROOT / package_name.replace(".", "/") / "__init__.py"
+        assert package_path.exists(), f"{package_name} should be an explicit package"
 
 
 def test_console_script_targets_are_importable() -> None:

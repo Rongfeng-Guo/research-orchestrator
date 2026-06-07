@@ -20,6 +20,8 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Documented the current benchmark, policy head-to-head, cross-fold, and research reporting workflows.
 - Expanded CLI smoke coverage to every public `argparse` script and guarded CI coverage against drift.
 - Verified wheel console script metadata in packaging CI and pinned the expected pyproject entry point registry in tests.
+- Made configuration subpackages explicit so packaged YAML directories are discovered consistently.
+- Updated package license metadata to the SPDX expression format expected by current setuptools builds.
 
 ### Added
 
