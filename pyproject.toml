@@ -42,6 +42,7 @@ dependencies = [
     "pandas>=2.0",
     "matplotlib>=3.7",
     "beautifulsoup4>=4.12",  # BrowserTool HTML 正文提取
+    "brotli>=1.1",  # BrowserTool br 压缩响应解码
     # vLLM 推理服务（可选，本地部署时安装）
     # "vllm",
     # PEFT / LoRA 微调（自进化模块需要）
