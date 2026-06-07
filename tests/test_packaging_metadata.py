@@ -3,8 +3,12 @@ from __future__ import annotations
 import importlib
 import importlib.resources
 import re
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10
+    import tomli as tomllib
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
