@@ -9,6 +9,7 @@ on:
       - "pyproject.toml"
       - "requirements.txt"
       - "__init__.py"
+      - "configs/**"
       - "scripts/**"
       - "src/**"
   pull_request:
@@ -17,6 +18,7 @@ on:
       - "pyproject.toml"
       - "requirements.txt"
       - "__init__.py"
+      - "configs/**"
       - "scripts/**"
       - "src/**"
   workflow_dispatch:
@@ -43,11 +45,12 @@ jobs:
       - name: Build package artifacts
         run: python -m build
 
-      - name: Verify wheel console script metadata
+      - name: Verify wheel package metadata
         run: |
           python -m pip install --no-deps --force-reinstall dist/*.whl
           python - <<'PY'
-          from importlib.metadata import entry_points
+          from importlib.metadata import entry_points, metadata
+          from importlib.resources import files
 
           expected = {
               "run-research": "scripts.run_single:main",
@@ -65,4 +68,22 @@ jobs:
           }
           if missing_or_wrong:
               raise SystemExit(f"Console script metadata mismatch: {missing_or_wrong}")
+
+          license_expression = metadata("research-orchestrator").get("License-Expression")
+          if license_expression != "MIT":
+              raise SystemExit(f"Unexpected License-Expression: {license_expression!r}")
+
+          expected_resources = [
+              ("configs.agents", "researcher.yaml"),
+              ("configs.evolution", "reward_shaping.yaml"),
+              ("configs.planner", "planner.yaml"),
+              ("configs.tools", "browser.yaml"),
+          ]
+          missing_resources = [
+              f"{package}:{resource_name}"
+              for package, resource_name in expected_resources
+              if not files(package).joinpath(resource_name).is_file()
+          ]
+          if missing_resources:
+              raise SystemExit(f"Missing package resources: {missing_resources}")
           PY

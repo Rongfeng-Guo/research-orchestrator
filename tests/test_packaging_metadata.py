@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import importlib.resources
 import re
 import tomllib
 from pathlib import Path
@@ -23,6 +24,13 @@ EXPECTED_CONFIG_PACKAGES = {
     "configs.evolution",
     "configs.planner",
     "configs.tools",
+}
+
+EXPECTED_CONFIG_RESOURCES = {
+    "configs.agents": "researcher.yaml",
+    "configs.evolution": "reward_shaping.yaml",
+    "configs.planner": "planner.yaml",
+    "configs.tools": "browser.yaml",
 }
 
 
@@ -89,6 +97,11 @@ def test_config_packages_are_explicitly_discoverable() -> None:
     for package_name in EXPECTED_CONFIG_PACKAGES:
         package_path = PROJECT_ROOT / package_name.replace(".", "/") / "__init__.py"
         assert package_path.exists(), f"{package_name} should be an explicit package"
+
+
+def test_config_package_resources_are_importable() -> None:
+    for package_name, resource_name in EXPECTED_CONFIG_RESOURCES.items():
+        assert importlib.resources.files(package_name).joinpath(resource_name).is_file()
 
 
 def test_console_script_targets_are_importable() -> None:
