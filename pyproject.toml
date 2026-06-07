@@ -73,7 +73,17 @@ dev = [
 ]
 # 全部可选依赖
 all = [
-    "research-orchestrator[serve,train,dev]",
+    "vllm>=0.4.0",
+    "peft>=0.11.0",
+    "accelerate>=0.30.0",
+    "deepspeed>=0.14.0",
+    "wandb",
+    "pytest>=7.0",
+    "pytest-asyncio",
+    "black",
+    "isort",
+    "mypy",
+    "flake8",
 ]
 
 [project.scripts]

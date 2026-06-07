@@ -25,6 +25,7 @@ The format is based on Keep a Changelog, and versioning in this repository curre
 - Replaced remaining legacy source-level project identifiers with the public `Research Orchestrator` identity.
 - Extended packaging CI to verify installed wheel license metadata and bundled configuration resources.
 - Corrected optional dependency installation examples to use project extras instead of invalid requirements-file extras.
+- Expanded the `all` optional dependency extra directly instead of relying on a self-referential extra.
 
 ### Added
 

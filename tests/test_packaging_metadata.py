@@ -83,6 +83,14 @@ def test_pyproject_runtime_dependencies_cover_active_requirements_txt() -> None:
     assert _active_requirements_txt_names() <= pyproject_names
 
 
+def test_all_optional_extra_expands_component_extras_without_self_reference() -> None:
+    pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    optional = pyproject["project"]["optional-dependencies"]
+
+    assert "research-orchestrator[serve,train,dev]" not in optional["all"]
+    assert set(optional["all"]) == set(optional["serve"] + optional["train"] + optional["dev"])
+
+
 def test_console_script_registry_is_stable() -> None:
     pyproject = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
