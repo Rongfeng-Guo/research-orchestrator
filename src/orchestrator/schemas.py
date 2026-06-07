@@ -1,5 +1,5 @@
 """
-Deep Research Agent — 核心数据结构定义 (M1/M2 共享 Schema)
+Research Orchestrator — 核心数据结构定义 (M1/M2 共享 Schema)
 
 所有跨模块传递的数据结构集中定义于此，保证类型一致性和可维护性。
 使用 Python 3.10+ 的 | 联合类型语法。

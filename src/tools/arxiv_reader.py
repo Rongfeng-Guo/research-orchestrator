@@ -61,6 +61,15 @@ class ArxivReaderTool:
         self.openalex_email = get_env("OPENALEX_EMAIL", "")
         self.openalex_base_url = "https://api.openalex.org"
 
+    def _openalex_headers(self) -> dict[str, str]:
+        headers = {
+            "User-Agent": "research-orchestrator",
+            "Accept-Encoding": "gzip, deflate",  # 避免 brotli 解码问题
+        }
+        if self.openalex_email:
+            headers["mailto"] = self.openalex_email
+        return headers
+
     def get_openai_tool_schema(self) -> dict:
         return {
             "type": "function",
@@ -316,12 +325,7 @@ class ArxivReaderTool:
     async def _openalex_execute(
         self, paper_id: str | None, query: str | None, max_results: int
     ) -> dict[str, Any]:
-        headers = {
-            "User-Agent": "deep-research-agent",
-            "Accept-Encoding": "gzip, deflate",  # 避免 brotli 解码问题
-        }
-        if self.openalex_email:
-            headers["mailto"] = self.openalex_email
+        headers = self._openalex_headers()
 
         try:
             if paper_id:

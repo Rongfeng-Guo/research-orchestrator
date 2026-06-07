@@ -1,5 +1,5 @@
 """
-Deep Research Agent — 核心编排器 (M1: Multi-Agent Orchestrator)
+Research Orchestrator — 核心编排器 (M1: Multi-Agent Orchestrator)
 
 9 状态状态机驱动的异步任务编排引擎：
   IDLE → PLANNING → DISPATCHING → COLLECTING → SYNTHESIZING → ADVERSARIAL → DONE
@@ -40,7 +40,7 @@ __all__ = ["Orchestrator"]
 
 
 class Orchestrator:
-    """Deep Research Agent 核心编排器。
+    """Research Orchestrator 核心编排器。
 
     Attributes:
         planner: 自适应规划器，负责初始规划和增量重规划。
